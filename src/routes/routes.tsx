@@ -5,6 +5,10 @@ import { Calendario } from "@/pages/Calendario";
 import { Escolas } from "@/pages/Escolas";
 import { Turmas } from "@/pages/Turmas";
 import { Alunos } from "@/pages/Alunos";
+import { Doacoes } from "@/pages/Doacoes";
+import { Rankings } from "@/pages/Rankings";
+import { Administrativo } from "@/pages/Administrativo";
+import { Dashboard } from "@/pages/Dashboard";
 
 export const Routes: React.FC = () => {
   const router = createBrowserRouter([
@@ -12,14 +16,15 @@ export const Routes: React.FC = () => {
       path: '/',
       Component: Layout,
       children: [
-        { index: true, element: <div>Hello World</div> },
+        { index: true, element: <Dashboard /> },
         { path: 'calendario', element: <Calendario /> },
         { path: 'escolas', element: <Escolas /> },
         { path: 'turmas', element: <Turmas /> },
         { path: 'alunos', element: <Alunos /> },
-        // { path: 'turmas', element: <Turmas /> },
-        // { path: 'turmas', element: <Turmas /> },
-        // { path: 'turmas', element: <Turmas /> },
+        { path: 'doacoes', element: <Doacoes /> },
+        { path: 'rankings', element: <Rankings /> },
+        { path: 'administrativo', element: <Administrativo /> },
+
       ],
     },
   ])
