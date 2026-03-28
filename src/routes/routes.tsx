@@ -4,6 +4,7 @@ import Layout from '../components/layout'
 import { Calendario } from "@/pages/Calendario";
 import { Escolas } from "@/pages/Escolas";
 import { Turmas } from "@/pages/Turmas";
+import { Alunos } from "@/pages/Alunos";
 
 export const Routes: React.FC = () => {
   const router = createBrowserRouter([
@@ -15,6 +16,10 @@ export const Routes: React.FC = () => {
         { path: 'calendario', element: <Calendario /> },
         { path: 'escolas', element: <Escolas /> },
         { path: 'turmas', element: <Turmas /> },
+        { path: 'alunos', element: <Alunos /> },
+        // { path: 'turmas', element: <Turmas /> },
+        // { path: 'turmas', element: <Turmas /> },
+        // { path: 'turmas', element: <Turmas /> },
       ],
     },
   ])
