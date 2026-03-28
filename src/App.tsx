@@ -1,14 +1,16 @@
 
 import './App.css'
-import { Routes } from './routes/Routes'
+import { DataProvider } from './context/DataContext'
+import { Routes } from './routes/routes'
 
 function App() {
 
 
   return (
     <>
-      <Routes />
-
+      <DataProvider>
+        <Routes />
+      </DataProvider>
     </>
   )
 }

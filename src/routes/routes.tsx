@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import Layout from '../components/layout'
+import { Calendario } from "@/pages/Calendario";
 
 export const Routes: React.FC = () => {
   const router = createBrowserRouter([
@@ -9,7 +10,7 @@ export const Routes: React.FC = () => {
       Component: Layout,
       children: [
         { index: true, element: <div>Hello World</div> },
-        // { path: 'cadastro-calendario', element: <CadastroCalendario /> },
+        { path: 'calendario', element: <Calendario /> },
       ],
     },
   ])

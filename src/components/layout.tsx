@@ -30,11 +30,11 @@ const Layout: React.FC = () => {
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-background-default">
       {/* Sidebar */}
       <aside
         className={`${sidebarOpen ? "w-64" : "w-20"
-          } bg-gradient-to-b from-green-600 to-green-700 text-white transition-all duration-300 flex flex-col shadow-lg`}
+          } bg-primary text-white transition-all duration-300 flex flex-col shadow-lg`}
       >
         {/* Header */}
         <div className="p-4 flex items-center justify-between border-b border-green-500">
@@ -51,7 +51,7 @@ const Layout: React.FC = () => {
             variant="ghost"
             size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-white hover:bg-green-500"
+            className="text-white hover:bg-green-400 hover:text-white"
           >
             <Menu className="h-5 w-5" />
           </Button>
@@ -68,8 +68,8 @@ const Layout: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${isActive
-                  ? "bg-green-500 text-white"
-                  : "text-green-50 hover:bg-green-500/50"
+                  ? "bg-accent text-white"
+                  : "text-green-50 hover:bg-hover/70"
                   } ${!sidebarOpen && "justify-center"}`}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />
