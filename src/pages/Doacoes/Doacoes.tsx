@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { useData } from "../context/DataContext";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { useDoacoes } from "./DoacoesContext";
+import { useAlunos } from "@/pages/Alunos/AlunosContext";
+import { useTurmas } from "@/pages/Turmas/TurmasContext";
+import { useEscolas } from "@/pages/Escolas/EscolasContext";
+import { useCalendarios } from "@/pages/Calendario/CalendariosContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Gift, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,7 +21,11 @@ interface AlunoDoacao {
 }
 
 export function Doacoes() {
-  const { doacoes, alunos, turmas, escolas, calendarios, addDoacao } = useData();
+  const { doacoes, addDoacao } = useDoacoes();
+  const { alunos } = useAlunos();
+  const { turmas } = useTurmas();
+  const { escolas } = useEscolas();
+  const { calendarios } = useCalendarios();
   const [selectedEscola, setSelectedEscola] = useState("");
   const [selectedTurma, setSelectedTurma] = useState("");
   const [selectedCalendario, setSelectedCalendario] = useState("");

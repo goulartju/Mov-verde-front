@@ -1,20 +1,26 @@
-import { useState } from "react";
-import { useData } from "../context/DataContext";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import { useState, useEffect } from "react";
+import { useCalendarios } from "./CalendariosContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, Calendar as CalendarIcon } from "lucide-react";
-import { Switch } from "../components/ui/switch";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import DatePicker from "../components/ui/date-picker";
-
+import DatePicker from "@/components/ui/date-picker";
+import { CalendariosService } from '@/services/calendarios.service';
 export function Calendario() {
-  const { calendarios, addCalendario, updateCalendario, deleteCalendario } = useData();
+  const { calendarios, addCalendario, updateCalendario, deleteCalendario } = useCalendarios();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+
+
+  useEffect(() => {
+    CalendariosService.logAll();
+  }, []);
 
   const [formData, setFormData] = useState({
     ano: new Date().getFullYear(),
@@ -212,6 +218,7 @@ export function Calendario() {
             </Table>
           )}
         </CardContent>
+
       </Card>
     </div>
   );

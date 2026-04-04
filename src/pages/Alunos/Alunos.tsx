@@ -1,23 +1,26 @@
 
 
 import { useState } from "react";
-import { useData } from "../context/DataContext";
+import { useAlunos } from "./AlunosContext";
+import { useTurmas } from "@/pages/Turmas/TurmasContext";
+import { useEscolas } from "@/pages/Escolas/EscolasContext";
+import { useCalendarios } from "@/pages/Calendario/CalendariosContext";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/ui/select";
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -25,27 +28,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../components/ui/table";
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../components/ui/dialog";
+} from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 export function Alunos() {
-  const {
-    alunos,
-    turmas,
-    escolas,
-    calendarios,
-    addAluno,
-    updateAluno,
-    deleteAluno,
-  } = useData();
+  const { alunos, addAluno, updateAluno, deleteAluno } = useAlunos();
+  const { turmas } = useTurmas();
+  const { escolas } = useEscolas();
+  const { calendarios } = useCalendarios();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(
     null,

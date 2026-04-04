@@ -1,4 +1,7 @@
-import { useData } from "../context/DataContext";
+import { useAlunos } from "@/pages/Alunos/AlunosContext";
+import { useTurmas } from "@/pages/Turmas/TurmasContext";
+import { useEscolas } from "@/pages/Escolas/EscolasContext";
+import { useDoacoes } from "@/pages/Doacoes/DoacoesContext";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Trophy, Medal, Award, Crown } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
@@ -26,7 +29,10 @@ const MEDALHAS: Medalha[] = [
 ];
 
 export function Rankings() {
-  const { alunos, turmas, escolas, doacoes } = useData();
+  const { alunos } = useAlunos();
+  const { turmas } = useTurmas();
+  const { escolas } = useEscolas();
+  const { doacoes } = useDoacoes();
 
   // Função para obter medalha do aluno
   const getMedalhaAluno = (tampinhas: number, lacres: number, total: number): Medalha => {

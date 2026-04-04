@@ -1,8 +1,11 @@
-import { useData } from "../context/DataContext";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { useEscolas } from "@/pages/Escolas/EscolasContext";
+import { useTurmas } from "@/pages/Turmas/TurmasContext";
+import { useAlunos } from "@/pages/Alunos/AlunosContext";
+import { useDoacoes } from "@/pages/Doacoes/DoacoesContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { School, Users, UserPlus, Gift, TrendingUp, Award, Trophy, Star } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Sistema de Medalhas - Inspirado em Escoteiros
 interface Medalha {
@@ -28,7 +31,10 @@ const MEDALHAS: Medalha[] = [
 ];
 
 export function Dashboard() {
-  const { escolas, turmas, alunos, doacoes } = useData();
+  const { escolas } = useEscolas();
+  const { turmas } = useTurmas();
+  const { alunos } = useAlunos();
+  const { doacoes } = useDoacoes();
 
   // Calcular estatísticas
   const totalTampinhas = doacoes.reduce((sum, d) => sum + d.tampinhas, 0);

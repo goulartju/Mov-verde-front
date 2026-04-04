@@ -1,14 +1,14 @@
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import Layout from '../components/layout'
-import { Calendario } from "@/pages/Calendario";
-import { Escolas } from "@/pages/Escolas";
-import { Turmas } from "@/pages/Turmas";
-import { Alunos } from "@/pages/Alunos";
-import { Doacoes } from "@/pages/Doacoes";
-import { Rankings } from "@/pages/Rankings";
-import { Administrativo } from "@/pages/Administrativo";
-import { Dashboard } from "@/pages/Dashboard";
+import { Calendario } from "@/pages/Calendario/Calendario";
+import { Escolas } from "@/pages/Escolas/Escolas";
+import { Turmas } from "@/pages/Turmas/Turmas";
+import { Alunos } from "@/pages/Alunos/Alunos";
+import { Doacoes } from "@/pages/Doacoes/Doacoes";
+import { Rankings } from "@/pages/Rankings/Rankings";
+import { Administrativo } from "@/pages/Administrativo/Administrativo";
+import { Dashboard } from "@/pages/Dashboard/Dashboard";
 
 export const Routes: React.FC = () => {
   const router = createBrowserRouter([

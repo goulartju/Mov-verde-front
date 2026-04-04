@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { useData } from "../context/DataContext";
+import { useTurmas } from "./TurmasContext";
+import { useEscolas } from "@/pages/Escolas/EscolasContext";
+import { useUsuarios } from "@/pages/Administrativo/UsuariosContext";
+import { useCalendarios } from "@/pages/Calendario/CalendariosContext";
 import {
   Card,
   CardContent,
@@ -41,15 +44,10 @@ import {
 import { toast } from "sonner";
 
 export function Turmas() {
-  const {
-    turmas,
-    escolas,
-    usuarios,
-    addTurma,
-    updateTurma,
-    calendarios,
-    deleteTurma,
-  } = useData();
+  const { turmas, addTurma, updateTurma, deleteTurma } = useTurmas();
+  const { escolas } = useEscolas();
+  const { usuarios } = useUsuarios();
+  const { calendarios } = useCalendarios();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(
     null,

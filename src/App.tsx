@@ -1,6 +1,5 @@
 
 import './App.css'
-import { DataProvider } from './context/DataContext'
 import { Routes } from './routes/routes'
 
 function App() {
@@ -8,9 +7,7 @@ function App() {
 
   return (
     <>
-      <DataProvider>
-        <Routes />
-      </DataProvider>
+      <Routes />
     </>
   )
 }
