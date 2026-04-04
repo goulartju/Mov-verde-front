@@ -2,9 +2,9 @@ import { useAlunos } from "@/pages/Alunos/AlunosContext";
 import { useTurmas } from "@/pages/Turmas/TurmasContext";
 import { useEscolas } from "@/pages/Escolas/EscolasContext";
 import { useDoacoes } from "@/pages/Doacoes/DoacoesContext";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy, Medal, Award, Crown } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Sistema de Medalhas
 interface Medalha {

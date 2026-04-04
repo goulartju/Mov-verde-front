@@ -1,13 +1,19 @@
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
-import Layout from '../components/layout'
+import Layout from '../components/layout';
 import { Calendario } from "@/pages/Calendario/Calendario";
+import { CalendariosProvider } from "@/pages/Calendario/CalendariosContext";
 import { Escolas } from "@/pages/Escolas/Escolas";
+import { EscolasProvider } from "@/pages/Escolas/EscolasContext";
 import { Turmas } from "@/pages/Turmas/Turmas";
+import { TurmasProvider } from "@/pages/Turmas/TurmasContext";
 import { Alunos } from "@/pages/Alunos/Alunos";
+import { AlunosProvider } from "@/pages/Alunos/AlunosContext";
 import { Doacoes } from "@/pages/Doacoes/Doacoes";
+import { DoacoesProvider } from "@/pages/Doacoes/DoacoesContext";
 import { Rankings } from "@/pages/Rankings/Rankings";
 import { Administrativo } from "@/pages/Administrativo/Administrativo";
+import { UsuariosProvider } from "@/pages/Administrativo/UsuariosContext";
 import { Dashboard } from "@/pages/Dashboard/Dashboard";
 
 export const Routes: React.FC = () => {
@@ -16,18 +22,105 @@ export const Routes: React.FC = () => {
       path: '/',
       Component: Layout,
       children: [
-        { index: true, element: <Dashboard /> },
-        { path: 'calendario', element: <Calendario /> },
-        { path: 'escolas', element: <Escolas /> },
-        { path: 'turmas', element: <Turmas /> },
-        { path: 'alunos', element: <Alunos /> },
-        { path: 'doacoes', element: <Doacoes /> },
-        { path: 'rankings', element: <Rankings /> },
-        { path: 'administrativo', element: <Administrativo /> },
-
+        {
+          index: true,
+          element: (
+            <EscolasProvider>
+              <TurmasProvider>
+                <AlunosProvider>
+                  <DoacoesProvider>
+                    <Dashboard />
+                  </DoacoesProvider>
+                </AlunosProvider>
+              </TurmasProvider>
+            </EscolasProvider>
+          ),
+        },
+        {
+          path: 'calendario',
+          element: (
+            <CalendariosProvider>
+              <Calendario />
+            </CalendariosProvider>
+          ),
+        },
+        {
+          path: 'escolas',
+          element: (
+            <EscolasProvider>
+              <Escolas />
+            </EscolasProvider>
+          ),
+        },
+        {
+          path: 'turmas',
+          element: (
+            <EscolasProvider>
+              <CalendariosProvider>
+                <UsuariosProvider>
+                  <TurmasProvider>
+                    <Turmas />
+                  </TurmasProvider>
+                </UsuariosProvider>
+              </CalendariosProvider>
+            </EscolasProvider>
+          ),
+        },
+        {
+          path: 'alunos',
+          element: (
+            <EscolasProvider>
+              <TurmasProvider>
+                <CalendariosProvider>
+                  <AlunosProvider>
+                    <Alunos />
+                  </AlunosProvider>
+                </CalendariosProvider>
+              </TurmasProvider>
+            </EscolasProvider>
+          ),
+        },
+        {
+          path: 'doacoes',
+          element: (
+            <EscolasProvider>
+              <TurmasProvider>
+                <AlunosProvider>
+                  <CalendariosProvider>
+                    <DoacoesProvider>
+                      <Doacoes />
+                    </DoacoesProvider>
+                  </CalendariosProvider>
+                </AlunosProvider>
+              </TurmasProvider>
+            </EscolasProvider>
+          ),
+        },
+        {
+          path: 'rankings',
+          element: (
+            <EscolasProvider>
+              <TurmasProvider>
+                <AlunosProvider>
+                  <DoacoesProvider>
+                    <Rankings />
+                  </DoacoesProvider>
+                </AlunosProvider>
+              </TurmasProvider>
+            </EscolasProvider>
+          ),
+        },
+        {
+          path: 'administrativo',
+          element: (
+            <UsuariosProvider>
+              <Administrativo />
+            </UsuariosProvider>
+          ),
+        },
       ],
     },
-  ])
+  ]);
 
-  return <RouterProvider router={router} />
+  return <RouterProvider router={router} />;
 }
