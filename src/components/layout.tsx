@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation } from "react-router";
+import { Outlet, Link, useLocation, useNavigate } from "react-router";
 import {
   LayoutDashboard,
   Calendar,
@@ -8,14 +8,24 @@ import {
   Gift,
   Trophy,
   Menu,
-  Recycle, SquarePen
+  Recycle, SquarePen,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { AuthService } from "@/services/auth.service";
+import { toast } from "sonner";
 
 const Layout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    AuthService.logout();
+    toast.success("Sessão encerrada");
+    navigate("/login");
+  };
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -80,12 +90,21 @@ const Layout: React.FC = () => {
         </nav>
 
         {/* Footer */}
-        {sidebarOpen && (
-          <div className="p-4 border-t border-green-500 text-xs text-green-100">
-            <p>Sistema de Arrecadação</p>
-            <p className="mt-1"> de Materiais Recicláveis</p>
-          </div>
-        )}
+        <div className={`p-4 border-t border-green-500 ${sidebarOpen ? "space-y-3" : ""}`}>
+          <button
+            onClick={handleLogout}
+            className={`flex items-center gap-3 w-full p-3 rounded-lg text-green-50 hover:bg-red-400/60 hover:text-white transition-colors ${!sidebarOpen && "justify-center"}`}
+          >
+            <LogOut className="h-5 w-5 flex-shrink-0" />
+            {sidebarOpen && <span className="text-sm">Sair</span>}
+          </button>
+          {sidebarOpen && (
+            <div className="text-xs text-green-100">
+              <p>Sistema de Arrecadação</p>
+              <p className="mt-1"> de Materiais Recicláveis</p>
+            </div>
+          )}
+        </div>
       </aside>
 
       {/* Main Content */}

@@ -8,7 +8,6 @@ const config = {
     USER_EMAIL: 'user_email',
     USER_FULLNAME: 'user_fullname',
   },
-  CALLBACK: '/callback',
 };
 
 export default config;

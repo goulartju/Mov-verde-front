@@ -12,25 +12,60 @@ type GetTokenResponse = {
   refresh_token: string;
 };
 
+type LoginParams = {
+  email: string;
+  senha: string;
+};
+
+type LoginResponse = {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  tokenType: string;
+};
+
+type JwtPayload = {
+  nameid?: string;
+  email?: string;
+  unique_name?: string;
+  role?: string;
+};
+
+const decodeJwt = (token: string): JwtPayload | null => {
+  try {
+    return JSON.parse(atob(token.split('.')[1])) as JwtPayload;
+  } catch {
+    return null;
+  }
+};
+
 const AuthService = {
   hasToken: (): boolean => {
     return !!window.localStorage.getItem(config.STORAGE.ACCESS_TOKEN);
   },
 
-  logout: async () => {
+  login: async (params: LoginParams): Promise<void> => {
+    const data = await HttpRequest.post<LoginResponse>({
+      url: `${config.API.AUTHORIZATION_URL}/Auth/login`,
+      body: params,
+    });
+
+    const payload = decodeJwt(data.accessToken);
+
+    window.localStorage.setItem(config.STORAGE.ACCESS_TOKEN, data.accessToken);
+    window.localStorage.setItem(config.STORAGE.REFRESH_TOKEN, data.refreshToken);
+    if (payload?.email) window.localStorage.setItem(config.STORAGE.USER_EMAIL, payload.email);
+    if (payload?.unique_name) window.localStorage.setItem(config.STORAGE.USER_FULLNAME, payload.unique_name);
+  },
+
+  logout: () => {
     Object.values(config.STORAGE).forEach((storageKey) =>
       window.localStorage.removeItem(storageKey),
     );
-    await HttpRequest.post({
-      url: `${config.API.AUTHORIZATION_URL}/logout`,
-    });
   },
 
   getLoginUrl: (): string => {
-    const redirectUrl = encodeURIComponent(
-      `${window.location.origin}${config.CALLBACK}`,
-    );
-    return `${config.API.AUTHORIZATION_URL}/login?redirect_url=${redirectUrl}`;
+    return '/login';
   },
 
   getToken: async (params: GetTokenParams): Promise<string> => {
@@ -81,3 +116,4 @@ const AuthService = {
 };
 
 export { AuthService };
+

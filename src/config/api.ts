@@ -49,10 +49,15 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // Login endpoint returned 401 → credenciais inválidas, deixa o catch do chamador tratar
+    if (originalRequest?.url?.includes('/Auth/login')) {
+      return Promise.reject(error);
+    }
+
     // Refresh endpoint itself returned 401 → give up
     if (originalRequest?.url?.includes('/login/token/refresh')) {
       Object.values(config.STORAGE).forEach((key) => localStorage.removeItem(key));
-      window.location.href = config.API.AUTHORIZATION_URL + '/login?redirect_url=' + encodeURIComponent(window.location.origin + config.CALLBACK);
+      window.location.href = '/login';
       return Promise.reject(error);
     }
 
@@ -101,7 +106,7 @@ api.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError, null);
       Object.values(config.STORAGE).forEach((key) => localStorage.removeItem(key));
-      window.location.href = config.API.AUTHORIZATION_URL + '/login?redirect_url=' + encodeURIComponent(window.location.origin + config.CALLBACK);
+      window.location.href = '/login';
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
