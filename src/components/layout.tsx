@@ -49,12 +49,14 @@ const Layout: React.FC = () => {
         {/* Header */}
         <div className="p-4 flex items-center justify-between border-b border-green-500">
           {sidebarOpen && (
-            <div className="flex items-center gap-2">
-              <Recycle className="h-8 w-8" />
-              <div>
-                <h2 className="font-bold text-lg">EcoColeta</h2>
-                <p className="text-xs text-green-100">Sustentabilidade</p>
+            <div className="flex flex-col items-center align-center">
+              <div className="flex items-center gap-2 align-center">
+                <Recycle className="h-8 w-8" />
+                <div>
+                  <h2 className="font-bold text-lg">Movimento Verde</h2>
+                </div>
               </div>
+              {/* <p className="text-xs text-left align-left p-2text-green-100">Sustentabilidade e Responsabilidade Social</p> */}
             </div>
           )}
           <Button
