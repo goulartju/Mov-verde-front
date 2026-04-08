@@ -73,7 +73,7 @@ const AuthService = {
     if (token) return token;
 
     const data = await HttpRequest.get<GetTokenResponse>({
-      url: `${config.API.AUTHORIZATION_URL}/login/token`,
+      url: `${config.API.AUTHORIZATION_URL}/Auth/refresh-token`,
       params,
     });
 
