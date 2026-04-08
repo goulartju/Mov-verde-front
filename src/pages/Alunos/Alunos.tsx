@@ -223,7 +223,7 @@ export function Alunos() {
           <CardTitle>Selecione a Turma</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="flex flex-roww-full min-w-[300px] md:grid-cols-4 gap-4">
             <div>
               <Label htmlFor="calendario">
                 Calendário/Ano *

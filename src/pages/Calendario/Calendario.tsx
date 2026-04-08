@@ -11,8 +11,11 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import DatePicker from "@/components/ui/date-picker";
 import { CalendariosService } from '@/services/calendarios.service';
+import { useEscolas } from "@/pages/Escolas/EscolasContext";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 export function Calendario() {
   const { calendarios, addCalendario, updateCalendario, deleteCalendario } = useCalendarios();
+  const { escolas } = useEscolas();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -27,6 +30,8 @@ export function Calendario() {
     dataInicio: "",
     dataFim: "",
     ativo: true,
+    id: "",
+    escolaId: "",
   });
 
   const resetForm = () => {
@@ -35,6 +40,8 @@ export function Calendario() {
       dataInicio: "",
       dataFim: "",
       ativo: true,
+      id: "",
+      escolaId: "",
     });
     setEditingId(null);
   };
@@ -65,6 +72,8 @@ export function Calendario() {
       dataInicio: calendario.dataInicio,
       dataFim: calendario.dataFim,
       ativo: calendario.ativo,
+      id: calendario.id,
+      escolaId: calendario.escolaId,
     });
     setEditingId(calendario.id);
     setOpen(true);
@@ -102,7 +111,7 @@ export function Calendario() {
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
+              <div className="flex flex-col w-full min-w-[300px]">
                 <Label htmlFor="ano">Ano</Label>
                 <Input
                   id="ano"
@@ -111,17 +120,44 @@ export function Calendario() {
                   onChange={(e) => setFormData({ ...formData, ano: parseInt(e.target.value) })}
                   required
                 />
+                <div className={"flex flex-col w-full min-w-[300px]"}>
+                  <Label htmlFor="escolaId">Escola </Label>
+                  <Select
+                    value={formData.escolaId}
+                    onValueChange={(value) =>
+                      setFormData({
+                        ...formData,
+                        escolaId: value,
+                      })
+                    }
+
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a escola" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {escolas.map((escola) => (
+                        <SelectItem
+                          key={escola.id}
+                          value={escola.id}
+                        >
+                          {escola.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div className="flex gap-4">
                 <DatePicker
-                  date={formData.dataInicio ? new Date(formData.dataInicio) : undefined}
+                  //date={formData.dataInicio ? new Date(formData.dataInicio) : undefined}
                   label="Data de início"
-                  onDateChange={(date: Date | undefined) => setFormData({ ...formData, dataInicio: date ? date.toISOString().split('T')[0] : '' })}
+                // onDateChange={(date: Date | undefined) => setFormData({ ...formData, dataInicio: date ? date.toISOString().split('T')[0] : '' })}
                 />
                 <DatePicker
-                  date={formData.dataFim ? new Date(formData.dataFim) : undefined}
+                  // date={formData.dataFim ? new Date(formData.dataFim) : undefined}
                   label="Data de término"
-                  onDateChange={(date: Date | undefined) => setFormData({ ...formData, dataFim: date ? date.toISOString().split('T')[0] : '' })}
+                // onDateChange={(date: Date | undefined) => setFormData({ ...formData, dataFim: date ? date.toISOString().split('T')[0] : '' })}
                 />
               </div>
 

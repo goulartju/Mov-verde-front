@@ -1,6 +1,8 @@
 export interface Escola {
   id: string;
   nome: string;
-  endereco: string;
+  municipio: string;
   contato: string;
+  diretor: string;
+  ativo: boolean;
 }
