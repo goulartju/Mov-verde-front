@@ -29,8 +29,8 @@ const Layout: React.FC = () => {
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/calendario", label: "Calendário", icon: Calendar },
     { path: "/escolas", label: "Escolas", icon: School },
+    { path: "/calendario", label: "Calendários", icon: Calendar },
     { path: "/turmas", label: "Turmas", icon: Users },
     { path: "/alunos", label: "Alunos", icon: UserPlus },
     { path: "/doacoes", label: "Doações", icon: Gift },

@@ -7,7 +7,7 @@ import { Pencil, Trash2, School } from "lucide-react";
 import ModalEscola from "./modal-escola";
 
 export function Escolas() {
-  const { escolas, handleEdit, handleDelete } = useEscolas();
+  const { escolas, handleEdit, handleDelete, setEscolaSelected } = useEscolas();
 
   return (
     <div className="space-y-6">
@@ -58,7 +58,10 @@ export function Escolas() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleEdit(escola)}
+                          onClick={() => {
+                            setEscolaSelected(escola);
+                            handleEdit(escola);
+                          }}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>

@@ -1,16 +1,16 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useEscolas } from "./EscolasContext";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
+import { useState, useEffect } from "react";
+import type { Escola } from "@/types/escola-types";
 
 const ModalEscola = () => {
-  const { addEscola, updateEscola, editingId, setEditingId, openModal, setOpenModal } = useEscolas();
+  const { addEscola, updateEscola, editingId, setEditingId, openModal, setOpenModal, escolaSelected, setEscolaSelected } = useEscolas();
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -19,6 +19,29 @@ const ModalEscola = () => {
     diretor: "",
     ativo: true,
   });
+
+  // Atualiza formData ao abrir modal para editar ou criar
+  useEffect(() => {
+    if (openModal) {
+      if (editingId && escolaSelected) {
+        setFormData({
+          nome: escolaSelected.nome || "",
+          municipio: escolaSelected.municipio || "",
+          contato: escolaSelected.contato || "",
+          diretor: escolaSelected.diretor || "",
+          ativo: escolaSelected.ativo ?? true,
+        });
+      } else {
+        setFormData({
+          nome: "",
+          municipio: "",
+          contato: "",
+          diretor: "",
+          ativo: true,
+        });
+      }
+    }
+  }, [openModal, editingId, escolaSelected]);
 
   const resetForm = () => {
     setFormData({
@@ -29,6 +52,7 @@ const ModalEscola = () => {
       ativo: true,
     });
     setEditingId(null);
+    setEscolaSelected(null);
     setOpenModal(false);
   };
 
