@@ -2,10 +2,10 @@ import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { Navigate, Outlet } from "react-router";
 import Layout from '../components/layout';
-import { Login } from "@/pages/Login/Login";
-import { Calendario } from "@/pages/Calendario/Calendario";
+import Login from "@/pages/Login/Login";
+import Calendario from "@/pages/Calendario/Calendario";
 import { CalendariosProvider } from "@/pages/Calendario/CalendariosContext";
-import { Escolas } from "@/pages/Escolas/Escolas";
+import Escolas from "@/pages/Escolas/Escolas";
 import { EscolasProvider } from "@/pages/Escolas/EscolasContext";
 import { Turmas } from "@/pages/Turmas/Turmas";
 import { TurmasProvider } from "@/pages/Turmas/TurmasContext";
@@ -55,9 +55,11 @@ export const Routes: React.FC = () => {
             {
               path: 'calendario',
               element: (
-                <CalendariosProvider>
-                  <Calendario />
-                </CalendariosProvider>
+                <EscolasProvider>
+                  <CalendariosProvider>
+                    <Calendario />
+                  </CalendariosProvider>
+                </EscolasProvider>
               ),
             },
             {

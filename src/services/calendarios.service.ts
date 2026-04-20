@@ -1,15 +1,12 @@
-import api from '@/config/api';
+import HttpRequest from '@/config/requests';
 import type { Calendario } from '@/types/calendario-types';
 
 export const CalendariosService = {
-  getAll: () => api.get<Calendario[]>('/Calendarios'),
-  getById: (id: string) => api.get<Calendario>(`/Calendarios/${id}`),
-  create: (data: Omit<Calendario, 'id'>) => api.post<Calendario>('/Calendarios', data),
-  update: (id: string, data: Partial<Calendario>) => api.put<Calendario>(`/Calendarios/${id}`, data),
-  delete: (id: string) => api.delete(`/Calendarios/${id}`),
+  getAll: () => HttpRequest.get<Calendario[]>({ url: '/Calendarios' }),
+  getById: (id: string) => HttpRequest.get<Calendario>({ url: `/Calendarios/${id}` }),
+  create: (data: Omit<Calendario, 'id'>) => HttpRequest.post<Calendario>({ url: '/Calendarios', body: data }),
+  update: (id: string, data: Partial<Calendario>) => HttpRequest.put<Calendario>({ url: `/Calendarios/${id}`, body: data }),
+  delete: (id: string) => HttpRequest.delete({ url: `/Calendarios/${id}` }),
 
-  logAll: async () => {
-    const { data } = await CalendariosService.getAll();
-    console.log('Calendários:', data);
-  },
+
 };

@@ -7,13 +7,12 @@ import { EscolasService } from '@/services/escolas.service';
 interface EscolasContextType {
   escolas: Escola[];
   escolaSelected: Escola | null;
+  editingId: string | null;
+  openModal: boolean;
   setEscolaSelected: (escola: Escola | null) => void;
   addEscola: (escola: Omit<Escola, 'id'>) => Promise<void>;
   updateEscola: (id: string, escola: Partial<Escola>) => void;
-  deleteEscola: (id: string) => void;
-  editingId: string | null;
   setEditingId: (id: string | null) => void;
-  openModal: boolean;
   setOpenModal: (open: boolean) => void;
   handleEdit: (escola: Escola) => void;
   handleDelete: (id: string) => void;
@@ -51,15 +50,14 @@ export const EscolasProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateEscola = (id: string, escola: Partial<Escola>) => {
-    setEscolas(prev => prev.map(e => e.id === id ? { ...e, ...escola } : e));
-    setEscolaSelected(escolas.find(e => e.id === id) || null);
-  };
+  const updateEscola = async (id: string, escola: Partial<Escola>) => {
+    try {
+      const updatedEscola = await EscolasService.update(id, escola);
+      setEscolas(prev => prev.map(e => e.id === id ? { ...e, ...updatedEscola } : e));
+      setEscolaSelected(escolas.find(e => e.id === id) || null);
+    } catch (error) {
+      toast.error("Erro ao atualizar escola. Tente novamente.");
 
-  const deleteEscola = (id: string) => {
-    setEscolas(prev => prev.filter(e => e.id !== id));
-    if (escolaSelected?.id === id) {
-      setEscolaSelected(null);
     }
   };
 
@@ -72,7 +70,10 @@ export const EscolasProvider = ({ children }: { children: ReactNode }) => {
   const handleDelete = async (id: string) => {
     try {
       await EscolasService.delete(id);
-      deleteEscola(id);
+      setEscolas(prev => prev.filter(e => e.id !== id));
+      if (escolaSelected?.id === id) {
+        setEscolaSelected(null);
+      }
       toast.success("Escola excluída com sucesso!");
     } catch (error) {
       toast.error("Erro ao excluir escola. Tente novamente.");
@@ -85,7 +86,10 @@ export const EscolasProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <EscolasContext.Provider value={{ escolas, escolaSelected, setEscolaSelected, addEscola, updateEscola, deleteEscola, editingId, setEditingId, openModal, setOpenModal, handleEdit, handleDelete }}>
+    <EscolasContext.Provider value={{
+      escolas, escolaSelected, setEscolaSelected, addEscola, updateEscola, editingId, setEditingId,
+      openModal, setOpenModal, handleEdit, handleDelete
+    }}>
       {children}
     </EscolasContext.Provider>
   );

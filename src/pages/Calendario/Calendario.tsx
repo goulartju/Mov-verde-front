@@ -1,90 +1,12 @@
-import { useState, useEffect } from "react";
 import { useCalendarios } from "./CalendariosContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Calendar as CalendarIcon } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { toast } from "sonner";
-import DatePicker from "@/components/ui/date-picker";
-import { CalendariosService } from '@/services/calendarios.service';
-import { useEscolas } from "@/pages/Escolas/EscolasContext";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-export function Calendario() {
-  const { calendarios, addCalendario, updateCalendario, deleteCalendario } = useCalendarios();
-  const { escolas } = useEscolas();
-  const [open, setOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+import { Pencil, Trash2, Calendar as CalendarIcon } from "lucide-react";
+import ModalCalendario from "./modal-calendario";
 
-
-
-  useEffect(() => {
-    CalendariosService.logAll();
-  }, []);
-
-  const [formData, setFormData] = useState({
-    ano: new Date().getFullYear(),
-    dataInicio: "",
-    dataFim: "",
-    ativo: true,
-    id: "",
-    escolaId: "",
-  });
-
-  const resetForm = () => {
-    setFormData({
-      ano: new Date().getFullYear(),
-      dataInicio: "",
-      dataFim: "",
-      ativo: true,
-      id: "",
-      escolaId: "",
-    });
-    setEditingId(null);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.dataInicio || !formData.dataFim) {
-      toast.error("Preencha todos os campos obrigatórios");
-      return;
-    }
-
-    if (editingId) {
-      updateCalendario(editingId, formData);
-      toast.success("Calendário atualizado com sucesso!");
-    } else {
-      addCalendario(formData);
-      toast.success("Calendário criado com sucesso!");
-    }
-
-    setOpen(false);
-    resetForm();
-  };
-
-  const handleEdit = (calendario: any) => {
-    setFormData({
-      ano: calendario.ano,
-      dataInicio: calendario.dataInicio,
-      dataFim: calendario.dataFim,
-      ativo: calendario.ativo,
-      id: calendario.id,
-      escolaId: calendario.escolaId,
-    });
-    setEditingId(calendario.id);
-    setOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir este calendário?")) {
-      deleteCalendario(id);
-      toast.success("Calendário excluído com sucesso!");
-    }
-  };
+const Calendario = () => {
+  const { calendarios, handleEdit, handleDelete } = useCalendarios();
 
   return (
     <div className="space-y-6">
@@ -94,93 +16,7 @@ export function Calendario() {
           <h1 className="text-3xl font-bold text-gray-900">Calendário</h1>
           <p className="text-gray-500 mt-1">Gerencie os períodos de arrecadação</p>
         </div>
-        <Dialog open={open} onOpenChange={(isOpen) => {
-          setOpen(isOpen);
-          if (!isOpen) resetForm();
-        }}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary ">
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Calendário
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingId ? "Editar Calendário" : "Novo Calendário"}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="flex flex-col w-full min-w-[300px]">
-                <Label htmlFor="ano">Ano</Label>
-                <Input
-                  id="ano"
-                  type="number"
-                  value={formData.ano}
-                  onChange={(e) => setFormData({ ...formData, ano: parseInt(e.target.value) })}
-                  required
-                />
-                <div className={"flex flex-col w-full min-w-[300px]"}>
-                  <Label htmlFor="escolaId">Escola </Label>
-                  <Select
-                    value={formData.escolaId}
-                    onValueChange={(value) =>
-                      setFormData({
-                        ...formData,
-                        escolaId: value,
-                      })
-                    }
-
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a escola" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {escolas.map((escola) => (
-                        <SelectItem
-                          key={escola.id}
-                          value={escola.id}
-                        >
-                          {escola.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <DatePicker
-                  //date={formData.dataInicio ? new Date(formData.dataInicio) : undefined}
-                  label="Data de início"
-                // onDateChange={(date: Date | undefined) => setFormData({ ...formData, dataInicio: date ? date.toISOString().split('T')[0] : '' })}
-                />
-                <DatePicker
-                  // date={formData.dataFim ? new Date(formData.dataFim) : undefined}
-                  label="Data de término"
-                // onDateChange={(date: Date | undefined) => setFormData({ ...formData, dataFim: date ? date.toISOString().split('T')[0] : '' })}
-                />
-              </div>
-
-
-              <div className="flex justify-end gap-4 items-center">
-                <Label htmlFor="ativo">Ativo</Label>
-                <Switch
-                  id="ativo"
-                  checked={formData.ativo}
-                  onCheckedChange={(checked) => setFormData({ ...formData, ativo: checked })}
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button type="submit" className="bg-primary">
-                  {editingId ? "Atualizar" : "Criar"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <ModalCalendario />
       </div>
 
       {/* Table */}
@@ -259,3 +95,5 @@ export function Calendario() {
     </div>
   );
 }
+
+export default Calendario;

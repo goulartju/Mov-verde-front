@@ -4,7 +4,7 @@ import { Leaf, Mail, Lock, Recycle } from 'lucide-react';
 import { AuthService } from '@/services/auth.service';
 import axios from 'axios';
 
-export function Login() {
+const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -172,3 +172,5 @@ export function Login() {
     </>
   );
 }
+
+export default Login;

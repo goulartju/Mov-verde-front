@@ -1,13 +1,12 @@
 import { useEscolas } from "./EscolasContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2, School } from "lucide-react";
 import ModalEscola from "./modal-escola";
 
-export function Escolas() {
-  const { escolas, handleEdit, handleDelete, setEscolaSelected } = useEscolas();
+const Escolas = () => {
+  const { escolas, handleEdit, handleDelete } = useEscolas();
 
   return (
     <div className="space-y-6">
@@ -59,7 +58,6 @@ export function Escolas() {
                           variant="ghost"
                           size="icon"
                           onClick={() => {
-                            setEscolaSelected(escola);
                             handleEdit(escola);
                           }}
                         >
@@ -85,3 +83,5 @@ export function Escolas() {
     </div>
   );
 }
+
+export default Escolas;

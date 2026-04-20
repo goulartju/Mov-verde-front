@@ -7,7 +7,6 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
-import type { Escola } from "@/types/escola-types";
 
 const ModalEscola = () => {
   const { addEscola, updateEscola, editingId, setEditingId, openModal, setOpenModal, escolaSelected, setEscolaSelected } = useEscolas();
@@ -56,7 +55,7 @@ const ModalEscola = () => {
     setOpenModal(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.nome || !formData.municipio || !formData.diretor || !formData.contato) {
@@ -68,7 +67,7 @@ const ModalEscola = () => {
       updateEscola(editingId, formData);
       toast.success("Escola atualizada com sucesso!");
     } else {
-      await addEscola(formData);
+      addEscola(formData);
       toast.success("Escola criada com sucesso!");
     }
 
