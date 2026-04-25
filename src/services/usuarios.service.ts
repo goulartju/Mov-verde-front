@@ -1,10 +1,11 @@
-import api from '@/config/api';
+
+import HttpRequest from '@/config/requests';
 import type { Usuario } from '@/types/usuario-types';
 
 export const UsuariosService = {
-  getAll: () => api.get<Usuario[]>('/usuarios'),
-  getById: (id: string) => api.get<Usuario>(`/usuarios/${id}`),
-  create: (data: Omit<Usuario, 'id'>) => api.post<Usuario>('/usuarios', data),
-  update: (id: string, data: Partial<Usuario>) => api.put<Usuario>(`/usuarios/${id}`, data),
-  delete: (id: string) => api.delete(`/usuarios/${id}`),
+  getAll: () => HttpRequest.get<Usuario[]>({ url: '/Usuarios' }),
+  getById: (id: string) => HttpRequest.get<Usuario>({ url: `/Usuarios/${id}` }),
+  create: (data: Omit<Usuario, 'id'>) => HttpRequest.post<Usuario>({ url: '/Usuarios', body: data }),
+  update: (id: string, data: Partial<Usuario>) => HttpRequest.put<Usuario>({ url: `/Usuarios/${id}`, body: data }),
+  delete: (id: string) => HttpRequest.delete({ url: `/Usuarios/${id}` }),
 };

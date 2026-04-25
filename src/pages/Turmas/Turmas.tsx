@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -28,103 +27,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Plus,
   Pencil,
   Trash2,
   Users,
   ClipboardPlus,
 } from "lucide-react";
-import { toast } from "sonner";
+import ModalTurma from "./modal-turma";
+import { AnoSerie, Turno } from "@/types/turma-types";
 
 export function Turmas() {
-  const { turmas, addTurma, updateTurma, deleteTurma } = useTurmas();
-  const { escolas } = useEscolas();
-  const { usuarios } = useUsuarios();
+  const { turmas, addTurma, updateTurma, handleDelete, handleEdit } = useTurmas();
+
   const { calendarios } = useCalendarios();
-  const [open, setOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(
-    null,
-  );
   const [selectedCalendario, setSelectedCalendario] =
     useState("");
-  const [selectedRepresentante, setSelectedRepresentante] =
-    useState("");
-
-  const [formData, setFormData] = useState({
-    nome: "",
-    ano: "",
-    escolaId: "",
-    turno: "",
-    calendario: "",
-    representante: ""
-  });
-
-  const resetForm = () => {
-    setFormData({
-      nome: "",
-      ano: "",
-      escolaId: "",
-      turno: "",
-      calendario: "",
-      representante: ""
-    });
-    setEditingId(null);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (
-      !formData.nome
-
-    ) {
-      toast.error("Preencha todos os campos obrigatórios");
-      return;
-    }
-
-    if (editingId) {
-      updateTurma(editingId, formData);
-      toast.success("Turma atualizada com sucesso!");
-    } else {
-      addTurma(formData);
-      toast.success("Turma criada com sucesso!");
-    }
-
-    setOpen(false);
-    resetForm();
-  };
-
-  const handleEdit = (turma: any) => {
-    setFormData({
-      nome: turma.nome,
-      ano: turma.ano,
-      escolaId: turma.escolaId,
-      turno: turma.turno,
-      calendario: turma.calendario,
-      representante: turma.representante
-    });
-    setEditingId(turma.id);
-    setOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir esta turma?")) {
-      deleteTurma(id);
-      toast.success("Turma excluída com sucesso!");
-    }
-  };
+  const { escolas } = useEscolas();
 
   const getEscolaName = (escolaId: string) => {
     const escola = escolas.find((e) => e.id === escolaId);
     return escola ? escola.nome : "Escola não encontrada";
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -138,217 +60,18 @@ export function Turmas() {
             Gerencie as turmas das escolas
           </p>
         </div>
-        <Dialog
-          open={open}
-          onOpenChange={(isOpen) => {
-            setOpen(isOpen);
-            if (!isOpen) resetForm();
-          }}
-        >
-          <DialogTrigger asChild>
-            <Button className="bg-green-600 hover:bg-green-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Nova Turma
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingId ? "Editar Turma" : "Nova Turma"}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="escolaId">Escola *</Label>
-                <Select
-                  value={formData.escolaId}
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      escolaId: value,
-                    })
-                  }
+        <div>
+          <ModalTurma />
+        </div>
 
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a escola" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {escolas.map((escola) => (
-                      <SelectItem
-                        key={escola.id}
-                        value={escola.id}
-                      >
-                        {escola.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="nome">Nome da Turma *</Label>
-                <Input
-                  id="nome"
-                  value={formData.nome}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      nome: e.target.value,
-                    })
-                  }
-
-                  placeholder="Ex: Turma A, 5º Ano A"
-                />
-              </div>
-              <div>
-                <Label htmlFor="ano">Ano/Série *</Label>
-                <Select
-                  value={formData.ano}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, ano: value })
-                  }
-
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o ano" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1º Ano">
-                      1º Ano
-                    </SelectItem>
-                    <SelectItem value="2º Ano">
-                      2º Ano
-                    </SelectItem>
-                    <SelectItem value="3º Ano">
-                      3º Ano
-                    </SelectItem>
-                    <SelectItem value="4º Ano">
-                      4º Ano
-                    </SelectItem>
-                    <SelectItem value="5º Ano">
-                      5º Ano
-                    </SelectItem>
-                    <SelectItem value="6º Ano">
-                      6º Ano
-                    </SelectItem>
-                    <SelectItem value="7º Ano">
-                      7º Ano
-                    </SelectItem>
-                    <SelectItem value="8º Ano">
-                      8º Ano
-                    </SelectItem>
-                    <SelectItem value="9º Ano">
-                      9º Ano
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="turno">Turno *</Label>
-                <Select
-                  value={formData.turno}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, turno: value })
-                  }
-
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o turno" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Matutino">
-                      Matutino
-                    </SelectItem>
-                    <SelectItem value="Vespertino">
-                      Vespertino
-                    </SelectItem>
-                    <SelectItem value="Noturno">
-                      Noturno
-                    </SelectItem>
-                    <SelectItem value="Integral">
-                      Integral
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="calendario">Calendário *</Label>
-                <Select
-                  value={formData.calendario}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, calendario: value })
-                  }
-
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o calendário" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {calendarios
-                      .filter((c) => c.ativo)
-                      .map((calendario) => (
-                        <SelectItem
-                          key={calendario.id}
-                          value={calendario.id}
-                        >
-                          {calendario.ano}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="escolaRepresentante">Representante *</Label>
-                <Select
-                  value={formData.representante}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, representante: value })
-                  }
-
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o representante da turma" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {usuarios
-                      .filter((c) => c.ativo)
-                      .map((usuario) => (
-                        <SelectItem
-                          key={usuario.id}
-                          value={usuario.nome}
-                        >
-                          {usuario.nome}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpen(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  {editingId ? "Atualizar" : "Criar"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
       </div>
 
       {/* Filtros */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Selecione o calendário</CardTitle>
         </CardHeader>
-        <CardContent>
+         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="flex flex-row gap-4">
               <Label htmlFor="calendario">
@@ -376,8 +99,8 @@ export function Turmas() {
               </Select>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </CardContent> 
+      </Card> */}
 
       {/* Table */}
       <Card>
@@ -416,12 +139,12 @@ export function Turmas() {
                     <TableCell className="font-medium">
                       {turma.nome}
                     </TableCell>
-                    <TableCell>{turma.ano}</TableCell>
+                    <TableCell>{(AnoSerie as any)[turma.anoEscolar] ?? turma.anoEscolar}</TableCell>
                     <TableCell>
                       {getEscolaName(turma.escolaId)}
                     </TableCell>
-                    <TableCell>{turma.turno}</TableCell>
-                    <TableCell>{turma.representante}</TableCell>
+                    <TableCell>{(Turno as any)[turma.turno] ?? turma.turno}</TableCell>
+                    <TableCell>{turma.representanteNome}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
