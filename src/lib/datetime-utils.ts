@@ -1,12 +1,7 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+import { parse } from "date-fns";
 
 // Helper para parsear datas em formato yyyy-MM-dd ou ISO string
-const parseStringToDate = (dateString: string | undefined | Date): Date | undefined => {
+export const parseStringToDate = (dateString: string | undefined | Date): Date | undefined => {
   if (!dateString) return undefined;
 
   try {

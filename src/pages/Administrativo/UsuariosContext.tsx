@@ -1,5 +1,5 @@
 import { UsuariosService } from '@/services/usuarios.service';
-import type { Usuario } from '@/types/usuario-types';
+import type { Usuario, UsuarioPayload } from '@/types/usuario-types';
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { toast } from "sonner";
 
@@ -11,10 +11,12 @@ interface UsuariosContextType {
   setEditingId: (id: string | null) => void;
   setOpenModal: (open: boolean) => void;
   setUsuarioSelected: (usuario: Usuario | null) => void;
-  addUsuario: (usuario: Omit<Usuario, 'id'>) => void;
-  updateUsuario: (id: string, usuario: Partial<Usuario>) => void;
+  addUsuario: (usuario: UsuarioPayload) => void;
+  updateUsuario: (id: string, usuario: UsuarioPayload) => void;
   handleDelete: (id: string) => void;
   handleEdit: (usuario: Usuario) => void;
+  setUsuarios: (usuarios: Usuario[]) => void;
+  fetchUsuarios: () => void;
 }
 
 const UsuariosContext = createContext<UsuariosContextType | undefined>(undefined);
@@ -40,7 +42,7 @@ export const UsuariosProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addUsuario = async (usuario: Omit<Usuario, 'id'>) => {
+  const addUsuario = async (usuario: UsuarioPayload) => {
     try {
       const newUsuario = await UsuariosService.create(usuario);
       setUsuarios(prev => [...prev, newUsuario]);
@@ -49,7 +51,7 @@ export const UsuariosProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateUsuario = async (id: string, usuario: Partial<Usuario>) => {
+  const updateUsuario = async (id: string, usuario: UsuarioPayload) => {
     try {
       const updatedUsuario = await UsuariosService.update(id, usuario);
       setUsuarios(prev => prev.map(u => u.id === id ? { ...u, ...updatedUsuario } : u));
@@ -85,7 +87,10 @@ export const UsuariosProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <UsuariosContext.Provider value={{ usuarios, addUsuario, updateUsuario, handleDelete, handleEdit, openModal, setOpenModal, editingId, setEditingId, usuarioSelected, setUsuarioSelected }}>
+    <UsuariosContext.Provider value={{
+      usuarios, addUsuario, updateUsuario, handleDelete, handleEdit,
+      openModal, setOpenModal, editingId, setEditingId, usuarioSelected, setUsuarioSelected, fetchUsuarios
+    }}>
       {children}
     </UsuariosContext.Provider>
   );

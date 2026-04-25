@@ -1,12 +1,23 @@
 export interface Usuario {
   id: string;
   nome: string;
-  permissao: string;
+  permissao: number;
   dataNascimento: string;
   email?: string;
-  senhaHash?: string;
   cargo: string;
   ativo: boolean;
-  criadoEm: string;
-  atualizadoEm: string;
+}
+
+export interface UsuarioPayload {
+  nome: string;
+  dataNascimento: string;
+  email: string;
+  permissao: number;
+  cargo: string;
+}
+
+export enum UsuarioPermissao {
+  Visualizador = 1,
+  Editor = 2,
+  Administrador = 3,
 }
