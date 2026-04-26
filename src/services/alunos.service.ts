@@ -1,10 +1,10 @@
-import api from '@/config/api';
+import HttpRequest from '@/config/requests';
 import type { Aluno } from '@/types/aluno-types';
 
 export const AlunosService = {
-  getAll: () => api.get<Aluno[]>('/alunos'),
-  getById: (id: string) => api.get<Aluno>(`/alunos/${id}`),
-  create: (data: Omit<Aluno, 'id'>) => api.post<Aluno>('/alunos', data),
-  update: (id: string, data: Partial<Aluno>) => api.put<Aluno>(`/alunos/${id}`, data),
-  delete: (id: string) => api.delete(`/alunos/${id}`),
+  getAll: () => HttpRequest.get<Aluno[]>({ url: '/alunos' }),
+  getById: (id: string) => HttpRequest.get<Aluno>({ url: `/alunos/${id}` }),
+  create: (data: Omit<Aluno, 'id'>) => HttpRequest.post<Aluno>({ url: '/alunos', body: data }),
+  update: (id: string, data: Partial<Aluno>) => HttpRequest.put<Aluno>({ url: `/alunos/${id}`, body: data }),
+  delete: (id: string) => HttpRequest.delete({ url: `/alunos/${id}` }),
 };

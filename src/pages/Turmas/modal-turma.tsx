@@ -91,11 +91,8 @@ const ModalTurma = () => {
       ativo: formData.ativo,
     };
 
-    if (formData.representanteId) {
-      const representante = usuariosList.find((u: any) => u.id === formData.representanteId);
+    if (formData.representanteId)
       payload.representanteId = formData.representanteId;
-      if (representante) payload.representante = { nomeUsuario: representante.nome, usuarioId: representante.id };
-    }
 
     if (editingId) {
       updateTurma(editingId, payload);

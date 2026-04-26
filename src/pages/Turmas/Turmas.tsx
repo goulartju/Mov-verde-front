@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useTurmas } from "./TurmasContext";
 import { useEscolas } from "@/pages/Escolas/EscolasContext";
-import { useUsuarios } from "@/pages/Administrativo/UsuariosContext";
-import { useCalendarios } from "@/pages/Calendario/CalendariosContext";
 import {
   Card,
   CardContent,
@@ -10,14 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -36,11 +26,11 @@ import ModalTurma from "./modal-turma";
 import { AnoSerie, Turno } from "@/types/turma-types";
 
 export function Turmas() {
-  const { turmas, addTurma, updateTurma, handleDelete, handleEdit } = useTurmas();
+  const { turmas, handleDelete, handleEdit } = useTurmas();
 
-  const { calendarios } = useCalendarios();
-  const [selectedCalendario, setSelectedCalendario] =
-    useState("");
+  // const { calendarios } = useCalendarios();
+  // const [selectedCalendario, setSelectedCalendario] =
+  //   useState("");
   const { escolas } = useEscolas();
 
   const getEscolaName = (escolaId: string) => {
@@ -155,13 +145,13 @@ export function Turmas() {
                           <Pencil className="h-4 w-4" />
                         </Button>
 
-                        <Button
+                        {/* <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDelete(turma.id)}
                         >
                           <ClipboardPlus className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
                         <Button
                           variant="ghost"
                           size="icon"
