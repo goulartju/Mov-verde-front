@@ -1,16 +1,13 @@
 
 import './App.css'
-import { DataProvider } from './context/DataContext'
 import { Routes } from './routes/routes'
+import { Toaster } from 'sonner'
 
 function App() {
-
-
   return (
     <>
-      <DataProvider>
-        <Routes />
-      </DataProvider>
+      <Routes />
+      <Toaster />
     </>
   )
 }

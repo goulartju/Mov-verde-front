@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { format } from "date-fns"
+import { format, startOfDay } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -34,13 +34,22 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const [date, setDate] = React.useState<Date | undefined>(value)
 
   React.useEffect(() => {
-    setDate(value)
+    if (value && value instanceof Date && !isNaN(value.getTime())) {
+      setDate(startOfDay(value))
+    } else {
+      setDate(undefined)
+    }
   }, [value])
 
   const handleDateChange = (selectedDate: Date | undefined) => {
-    setDate(selectedDate)
-    if (onChange) {
-      onChange(selectedDate || new Date())
+    if (selectedDate && selectedDate instanceof Date && !isNaN(selectedDate.getTime())) {
+      const correctedDate = startOfDay(selectedDate)
+      setDate(correctedDate)
+      if (onChange) {
+        onChange(correctedDate)
+      }
+    } else {
+      setDate(undefined)
     }
   }
 
@@ -48,7 +57,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
     <div className="mx-auto w-full">
       {label && <Label htmlFor="date-picker-simple">{label}</Label>}
       <Popover>
-        <PopoverTrigger asChild className="bg-white!">
+        <PopoverTrigger asChild className="bg-white! w-full">
           <Button
             variant="outline"
             id="date-picker-simple"
@@ -58,11 +67,11 @@ const DatePicker: React.FC<DatePickerProps> = ({
             data-required={required}
           >
             <div className="items-start self-start">
-              {date ? format(date, "dd/MM/yyyy") : <span className="align-start">{placeholder}</span>}
+              {date && !isNaN(date.getTime()) ? format(date, "dd/MM/yyyy") : <span className="align-start">{placeholder}</span>}
             </div>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="!w-fit p-0" align="start">
           <Calendar
             mode="single"
             selected={date}
