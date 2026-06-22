@@ -1,86 +1,86 @@
-import { useEscolas } from "@/pages/Escolas/EscolasContext";
-import { useTurmas } from "@/pages/Turmas/TurmasContext";
-import { useAlunos } from "@/pages/Alunos/AlunosContext";
-import { useDoacoes } from "@/pages/Doacoes/DoacoesContext";
+// import { useEscolas } from "@/pages/Escolas/EscolasContext";
+// import { useTurmas } from "@/pages/Turmas/TurmasContext";
+// import { useAlunos } from "@/pages/Alunos/AlunosContext";
+// import { useDoacoes } from "@/pages/Doacoes/DoacoesContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { School, Users, UserPlus, Gift, TrendingUp, Award, Trophy, Star } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+//import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Sistema de Medalhas - Inspirado em Escoteiros
-interface Medalha {
-  nome: string;
-  cor: string;
-  icone: string;
-  minTampinhas: number;
-  minLacres: number;
-  minTotal: number;
-  descricao: string;
-}
+// interface Medalha {
+//   nome: string;
+//   cor: string;
+//   icone: string;
+//   minTampinhas: number;
+//   minLacres: number;
+//   minTotal: number;
+//   descricao: string;
+// }
 
-const MEDALHAS: Medalha[] = [
-  { nome: "Iniciante", cor: "gray", icone: "🌱", minTampinhas: 0, minLacres: 0, minTotal: 0, descricao: "Começou a jornada" },
-  { nome: "Bronze", cor: "orange", icone: "🥉", minTampinhas: 50, minLacres: 20, minTotal: 100, descricao: "Primeiros passos" },
-  { nome: "Prata", cor: "gray", icone: "🥈", minTampinhas: 150, minLacres: 50, minTotal: 300, descricao: "Progresso notável" },
-  { nome: "Ouro", cor: "yellow", icone: "🥇", minTampinhas: 300, minLacres: 100, minTotal: 600, descricao: "Dedicação exemplar" },
-  { nome: "Esmeralda", cor: "emerald", icone: "💎", minTampinhas: 500, minLacres: 200, minTotal: 1000, descricao: "Guerreiro verde" },
-  { nome: "Safira", cor: "blue", icone: "🔷", minTampinhas: 800, minLacres: 350, minTotal: 1500, descricao: "Protetor da natureza" },
-  { nome: "Rubi", cor: "red", icone: "💍", minTampinhas: 1200, minLacres: 500, minTotal: 2200, descricao: "Campeão sustentável" },
-  { nome: "Diamante", cor: "cyan", icone: "💠", minTampinhas: 1800, minLacres: 750, minTotal: 3200, descricao: "Elite da reciclagem" },
-  { nome: "Mestre Eco", cor: "green", icone: "🌟", minTampinhas: 2500, minLacres: 1000, minTotal: 5000, descricao: "Lenda da sustentabilidade" },
-];
+// const MEDALHAS: Medalha[] = [
+//   { nome: "Iniciante", cor: "gray", icone: "🌱", minTampinhas: 0, minLacres: 0, minTotal: 0, descricao: "Começou a jornada" },
+//   { nome: "Bronze", cor: "orange", icone: "🥉", minTampinhas: 50, minLacres: 20, minTotal: 100, descricao: "Primeiros passos" },
+//   { nome: "Prata", cor: "gray", icone: "🥈", minTampinhas: 150, minLacres: 50, minTotal: 300, descricao: "Progresso notável" },
+//   { nome: "Ouro", cor: "yellow", icone: "🥇", minTampinhas: 300, minLacres: 100, minTotal: 600, descricao: "Dedicação exemplar" },
+//   { nome: "Esmeralda", cor: "emerald", icone: "💎", minTampinhas: 500, minLacres: 200, minTotal: 1000, descricao: "Guerreiro verde" },
+//   { nome: "Safira", cor: "blue", icone: "🔷", minTampinhas: 800, minLacres: 350, minTotal: 1500, descricao: "Protetor da natureza" },
+//   { nome: "Rubi", cor: "red", icone: "💍", minTampinhas: 1200, minLacres: 500, minTotal: 2200, descricao: "Campeão sustentável" },
+//   { nome: "Diamante", cor: "cyan", icone: "💠", minTampinhas: 1800, minLacres: 750, minTotal: 3200, descricao: "Elite da reciclagem" },
+//   { nome: "Mestre Eco", cor: "green", icone: "🌟", minTampinhas: 2500, minLacres: 1000, minTotal: 5000, descricao: "Lenda da sustentabilidade" },
+// ];
 
 export function Dashboard() {
-  const { escolas } = useEscolas();
-  const { turmas } = useTurmas();
-  const { alunos } = useAlunos();
-  const { doacoes } = useDoacoes();
+  // const { escolas } = useEscolas();
+  // const { turmas } = useTurmas();
+  // const { alunos } = useAlunos();
+  // const { doacoes } = useDoacoes();
 
-  // Calcular estatísticas
-  const totalTampinhas = doacoes.reduce((sum, d) => sum + d.tampinhas, 0);
-  const totalLacres = doacoes.reduce((sum, d) => sum + d.lacres, 0);
+  // // Calcular estatísticas
+  // const totalTampinhas = doacoes.reduce((sum, d) => sum + d.tampinhas, 0);
+  // const totalLacres = doacoes.reduce((sum, d) => sum + d.lacres, 0);
 
-  // Função para obter medalha do aluno
-  const getMedalhaAluno = (tampinhas: number, lacres: number, total: number): Medalha => {
-    for (let i = MEDALHAS.length - 1; i >= 0; i--) {
-      const medalha = MEDALHAS[i];
-      if (tampinhas >= medalha.minTampinhas && lacres >= medalha.minLacres && total >= medalha.minTotal) {
-        return medalha;
-      }
-    }
-    return MEDALHAS[0];
-  };
+  // // Função para obter medalha do aluno
+  // const getMedalhaAluno = (tampinhas: number, lacres: number, total: number): Medalha => {
+  //   for (let i = MEDALHAS.length - 1; i >= 0; i--) {
+  //     const medalha = MEDALHAS[i];
+  //     if (tampinhas >= medalha.minTampinhas && lacres >= medalha.minLacres && total >= medalha.minTotal) {
+  //       return medalha;
+  //     }
+  //   }
+  //   return MEDALHAS[0];
+  // };
 
   // Calcular medalhas dos alunos
-  const alunosComMedalhas = alunos.map((aluno) => {
-    const doacoesAluno = doacoes.filter((d) => d.alunoId === aluno.id);
-    const totalTampinhas = doacoesAluno.reduce((sum, d) => sum + d.tampinhas, 0);
-    const totalLacres = doacoesAluno.reduce((sum, d) => sum + d.lacres, 0);
-    const totalGeral = totalTampinhas + totalLacres;
+  // const alunosComMedalhas = alunos.map((aluno) => {
+  //   const doacoesAluno = doacoes.filter((d) => d.alunoId === aluno.id);
+  //   const totalTampinhas = doacoesAluno.reduce((sum, d) => sum + d.tampinhas, 0);
+  //   const totalLacres = doacoesAluno.reduce((sum, d) => sum + d.lacres, 0);
+  //   const totalGeral = totalTampinhas + totalLacres;
 
-    const medalha = getMedalhaAluno(totalTampinhas, totalLacres, totalGeral);
-    const turma = turmas.find((t) => t.id === aluno.turmaId);
-    const escola = escolas.find((e) => e.id === turma?.escolaId);
+  //   const medalha = getMedalhaAluno(totalTampinhas, totalLacres, totalGeral);
+  //   const turma = turmas.find((t) => t.id === aluno.turmaId);
+  //   const escola = escolas.find((e) => e.id === turma?.escolaId);
 
-    return {
-      id: aluno.id,
-      nome: aluno.nome,
-      turma: turma?.nome || "-",
-      escola: escola?.nome || "-",
-      tampinhas: totalTampinhas,
-      lacres: totalLacres,
-      total: totalGeral,
-      medalha,
-    };
-  }).sort((a, b) => b.total - a.total);
+  //   return {
+  //     id: aluno.id,
+  //     nome: aluno.nome,
+  //     turma: turma?.nome || "-",
+  //     escola: escola?.nome || "-",
+  //     tampinhas: totalTampinhas,
+  //     lacres: totalLacres,
+  //     total: totalGeral,
+  //     medalha,
+  //   };
+  // }).sort((a, b) => b.total - a.total);
 
-  // Contar alunos por medalha
-  const distribuicaoMedalhas = MEDALHAS.map(medalha => ({
-    nome: medalha.nome,
-    quantidade: alunosComMedalhas.filter(a => a.medalha.nome === medalha.nome).length,
-    cor: medalha.cor,
-    icone: medalha.icone,
-  })).filter(m => m.quantidade > 0);
+  // // Contar alunos por medalha
+  // const distribuicaoMedalhas = MEDALHAS.map(medalha => ({
+  //   nome: medalha.nome,
+  //   quantidade: alunosComMedalhas.filter(a => a.medalha.nome === medalha.nome).length,
+  //   cor: medalha.cor,
+  //   icone: medalha.icone,
+  // })).filter(m => m.quantidade > 0);
 
   // Dados para gráficos
   // const doacoesPorEscola = escolas.map(escola => {
@@ -95,62 +95,62 @@ export function Dashboard() {
   //   };
   // });
 
-  const tipoDoacoes = [
-    { name: "Tampinhas", value: totalTampinhas },
-    { name: "Lacres", value: totalLacres },
-  ];
+  // const tipoDoacoes = [
+  //   { name: "Tampinhas", value: totalTampinhas },
+  //   { name: "Lacres", value: totalLacres },
+  // ];
 
-  const COLORS = ['#16a34a', '#22c55e'];
+  // const COLORS = ['#16a34a', '#22c55e'];
 
-  const getMedalhaColor = (cor: string) => {
-    const colors: Record<string, string> = {
-      gray: "bg-gray-400",
-      orange: "bg-orange-600",
-      yellow: "bg-yellow-400",
-      emerald: "bg-emerald-500",
-      blue: "bg-blue-500",
-      red: "bg-red-500",
-      cyan: "bg-cyan-400",
-      green: "bg-green-600",
-    };
-    return colors[cor] || "bg-gray-400";
-  };
+  // const getMedalhaColor = (cor: string) => {
+  //   const colors: Record<string, string> = {
+  //     gray: "bg-gray-400",
+  //     orange: "bg-orange-600",
+  //     yellow: "bg-yellow-400",
+  //     emerald: "bg-emerald-500",
+  //     blue: "bg-blue-500",
+  //     red: "bg-red-500",
+  //     cyan: "bg-cyan-400",
+  //     green: "bg-green-600",
+  //   };
+  //   return colors[cor] || "bg-gray-400";
+  // };
 
-  // Calcular conquistas semanais (últimos 7 dias)
-  const dataLimite = new Date();
-  dataLimite.setDate(dataLimite.getDate() - 7);
+  // // Calcular conquistas semanais (últimos 7 dias)
+  // const dataLimite = new Date();
+  // dataLimite.setDate(dataLimite.getDate() - 7);
 
-  const doacoesRecentes = doacoes.filter(d => new Date(d.data) >= dataLimite);
+  // const doacoesRecentes = doacoes.filter(d => new Date(d.data) >= dataLimite);
 
-  const conquistaSemanalTampinhas = alunosComMedalhas
-    .map(aluno => ({
-      ...aluno,
-      tampinhasSemana: doacoesRecentes
-        .filter(d => d.alunoId === aluno.id)
-        .reduce((sum, d) => sum + d.tampinhas, 0),
-    }))
-    .filter(a => a.tampinhasSemana > 0)
-    .sort((a, b) => b.tampinhasSemana - a.tampinhasSemana)[0];
+  // const conquistaSemanalTampinhas = alunosComMedalhas
+  //   .map(aluno => ({
+  //     ...aluno,
+  //     tampinhasSemana: doacoesRecentes
+  //       .filter(d => d.alunoId === aluno.id)
+  //       .reduce((sum, d) => sum + d.tampinhas, 0),
+  //   }))
+  //   .filter(a => a.tampinhasSemana > 0)
+  //   .sort((a, b) => b.tampinhasSemana - a.tampinhasSemana)[0];
 
-  const conquistaSemanalLacres = alunosComMedalhas
-    .map(aluno => ({
-      ...aluno,
-      lacresSemana: doacoesRecentes
-        .filter(d => d.alunoId === aluno.id)
-        .reduce((sum, d) => sum + d.lacres, 0),
-    }))
-    .filter(a => a.lacresSemana > 0)
-    .sort((a, b) => b.lacresSemana - a.lacresSemana)[0];
+  // const conquistaSemanalLacres = alunosComMedalhas
+  //   .map(aluno => ({
+  //     ...aluno,
+  //     lacresSemana: doacoesRecentes
+  //       .filter(d => d.alunoId === aluno.id)
+  //       .reduce((sum, d) => sum + d.lacres, 0),
+  //   }))
+  //   .filter(a => a.lacresSemana > 0)
+  //   .sort((a, b) => b.lacresSemana - a.lacresSemana)[0];
 
-  const conquistaSemanalTotal = alunosComMedalhas
-    .map(aluno => ({
-      ...aluno,
-      totalSemana: doacoesRecentes
-        .filter(d => d.alunoId === aluno.id)
-        .reduce((sum, d) => sum + d.tampinhas + d.lacres, 0),
-    }))
-    .filter(a => a.totalSemana > 0)
-    .sort((a, b) => b.totalSemana - a.totalSemana)[0];
+  // const conquistaSemanalTotal = alunosComMedalhas
+  //   .map(aluno => ({
+  //     ...aluno,
+  //     totalSemana: doacoesRecentes
+  //       .filter(d => d.alunoId === aluno.id)
+  //       .reduce((sum, d) => sum + d.tampinhas + d.lacres, 0),
+  //   }))
+  //   .filter(a => a.totalSemana > 0)
+  //   .sort((a, b) => b.totalSemana - a.totalSemana)[0];
 
   return (
     <div className="space-y-6">
@@ -177,8 +177,8 @@ export function Dashboard() {
                 <School className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{escolas.length}</div>
-                <p className="text-xs text-gray-500">Total cadastradas</p>
+                {/* <div className="text-2xl font-bold">{escolas.length}</div>
+                <p className="text-xs text-gray-500">Total cadastradas</p> */}
               </CardContent>
             </Card>
 
@@ -188,8 +188,8 @@ export function Dashboard() {
                 <Users className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{turmas.length}</div>
-                <p className="text-xs text-gray-500">Total cadastradas</p>
+                {/* <div className="text-2xl font-bold">{turmas.length}</div>
+                <p className="text-xs text-gray-500">Total cadastradas</p> */}
               </CardContent>
             </Card>
 
@@ -199,8 +199,8 @@ export function Dashboard() {
                 <UserPlus className="h-4 w-4 text-purple-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{alunos.length}</div>
-                <p className="text-xs text-gray-500">Total cadastrados</p>
+                {/* <div className="text-2xl font-bold">{alunos.length}</div>
+                <p className="text-xs text-gray-500">Total cadastrados</p> */}
               </CardContent>
             </Card>
 
@@ -210,8 +210,8 @@ export function Dashboard() {
                 <Gift className="h-4 w-4 text-orange-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{doacoes.length}</div>
-                <p className="text-xs text-gray-500">Total registradas</p>
+                {/* <div className="text-2xl font-bold">{doacoes.length}</div>
+                <p className="text-xs text-gray-500">Total registradas</p> */}
               </CardContent>
             </Card>
           </div>
@@ -224,7 +224,7 @@ export function Dashboard() {
                 <TrendingUp className="h-6 w-6 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-4xl font-bold text-green-700">{totalTampinhas.toLocaleString('pt-BR')}</div>
+                {/* <div className="text-4xl font-bold text-green-700">{totalTampinhas.toLocaleString('pt-BR')}</div> */}
                 <p className="text-sm text-green-600 mt-2">Total acumulado</p>
               </CardContent>
             </Card>
@@ -235,7 +235,7 @@ export function Dashboard() {
                 <Award className="h-6 w-6 text-emerald-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-4xl font-bold text-emerald-700">{totalLacres.toLocaleString('pt-BR')}</div>
+                {/* <div className="text-4xl font-bold text-emerald-700">{totalLacres.toLocaleString('pt-BR')}</div> */}
                 <p className="text-sm text-emerald-600 mt-2">Total acumulado</p>
               </CardContent>
             </Card>
@@ -320,7 +320,7 @@ export function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {doacoesRecentes.length === 0 ? (
+              {/* {doacoesRecentes.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <Trophy className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Nenhuma doação nos últimos 7 dias</p>
@@ -328,7 +328,7 @@ export function Dashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Maior Doação de Tampinhas da Semana */}
-                  {conquistaSemanalTampinhas && (
+              {/* {conquistaSemanalTampinhas && (
                     <div className="p-4 rounded-lg border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-2xl shadow-lg">
@@ -348,10 +348,10 @@ export function Dashboard() {
                         <p className="text-xs text-gray-500">tampinhas esta semana</p>
                       </div>
                     </div>
-                  )}
+                  )} */}
 
                   {/* Maior Doação de Lacres da Semana */}
-                  {conquistaSemanalLacres && (
+              {/* {conquistaSemanalLacres && (
                     <div className="p-4 rounded-lg border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-2xl shadow-lg">
@@ -371,10 +371,10 @@ export function Dashboard() {
                         <p className="text-xs text-gray-500">lacres esta semana</p>
                       </div>
                     </div>
-                  )}
+                  )} */}
 
                   {/* Maior Doação Total da Semana */}
-                  {conquistaSemanalTotal && (
+              {/* {conquistaSemanalTotal && (
                     <div className="p-4 rounded-lg border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-white">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center text-2xl shadow-lg">
@@ -396,7 +396,7 @@ export function Dashboard() {
                     </div>
                   )}
                 </div>
-              )}
+              )} */}
             </CardContent>
           </Card>
 
@@ -409,7 +409,7 @@ export function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {distribuicaoMedalhas.length === 0 ? (
+              {/* {distribuicaoMedalhas.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <Star className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Nenhuma doação registrada ainda</p>
@@ -429,7 +429,7 @@ export function Dashboard() {
                     </div>
                   ))}
                 </div>
-              )}
+              )} */}
             </CardContent>
           </Card>
 
@@ -442,14 +442,14 @@ export function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {alunosComMedalhas.length === 0 ? (
+              {/* {alunosComMedalhas.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <Trophy className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Nenhuma doação registrada ainda</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                    {/* {alunosComMedalhas.slice(0, 10).map((aluno, index) => (
+                    {alunosComMedalhas.slice(0, 10).map((aluno, index) => (
                     <div
                       key={aluno.id}
                       className={`flex items-center justify-between p-4 rounded-lg border-2 ${index < 3 ? "border-green-200 bg-green-50" : "border-gray-200"
@@ -480,9 +480,9 @@ export function Dashboard() {
                         </div>
                       </div>
                     </div>
-                  ))} */}
+                  ))}
                 </div>
-              )}
+              )} */}
             </CardContent>
           </Card>
         </TabsContent>
