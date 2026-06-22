@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useAlunos } from "./AlunosContext";
 import ModalAluno from "./modal-aluno";
 import {

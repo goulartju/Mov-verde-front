@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTurmas } from "./TurmasContext";
 import { useEscolas } from "@/pages/Escolas/EscolasContext";
 import {
@@ -20,7 +19,7 @@ import {
   Pencil,
   Trash2,
   Users,
-  ClipboardPlus,
+  //  ClipboardPlus,
 } from "lucide-react";
 import ModalTurma from "./modal-turma";
 import { AnoSerie, Turno } from "@/types/turma-types";

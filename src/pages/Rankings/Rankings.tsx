@@ -99,7 +99,7 @@ export function Rankings() {
         id: turma.id,
         nome: turma.nome,
         escola: escola?.nome || "-",
-        ano: turma.ano,
+        ano: turma.anoEscolar,
         tampinhas: totalTampinhas,
         lacres: totalLacres,
         total: totalGeral,

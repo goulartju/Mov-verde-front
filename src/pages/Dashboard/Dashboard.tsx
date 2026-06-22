@@ -83,17 +83,17 @@ export function Dashboard() {
   })).filter(m => m.quantidade > 0);
 
   // Dados para gráficos
-  const doacoesPorEscola = escolas.map(escola => {
-    const doacoesEscola = doacoes.filter(d => d.escolaId === escola.id);
-    const tampinhas = doacoesEscola.reduce((sum, d) => sum + d.tampinhas, 0);
-    const lacres = doacoesEscola.reduce((sum, d) => sum + d.lacres, 0);
-    return {
-      nome: escola.nome,
-      tampinhas,
-      lacres,
-      total: tampinhas + lacres
-    };
-  });
+  // const doacoesPorEscola = escolas.map(escola => {
+  //   const doacoesEscola = doacoes.filter(d => d.escolaId === escola.id);
+  //   const tampinhas = doacoesEscola.reduce((sum, d) => sum + d.tampinhas, 0);
+  //   const lacres = doacoesEscola.reduce((sum, d) => sum + d.lacres, 0);
+  //   return {
+  //     nome: escola.nome,
+  //     tampinhas,
+  //     lacres,
+  //     total: tampinhas + lacres
+  //   };
+  // });
 
   const tipoDoacoes = [
     { name: "Tampinhas", value: totalTampinhas },
@@ -249,7 +249,7 @@ export function Dashboard() {
                 <CardTitle>Arrecadação por Escola</CardTitle>
               </CardHeader>
               <CardContent>
-                {doacoesPorEscola.length > 0 ? (
+                {/* {doacoesPorEscola.length > 0 ? (
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={doacoesPorEscola}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -265,7 +265,7 @@ export function Dashboard() {
                   <div className="h-[300px] flex items-center justify-center text-gray-400">
                     Nenhuma doação registrada
                   </div>
-                )}
+                )} */}
               </CardContent>
             </Card>
 
@@ -275,7 +275,7 @@ export function Dashboard() {
                 <CardTitle>Distribuição de Doações</CardTitle>
               </CardHeader>
               <CardContent>
-                {totalTampinhas > 0 || totalLacres > 0 ? (
+                {/* {totalTampinhas > 0 || totalLacres > 0 ? (
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
@@ -289,7 +289,10 @@ export function Dashboard() {
                         dataKey="value"
                       >
                         {tipoDoacoes.map((entry, index) => (
+                          <>
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <p className="text-xs text-gray-500 mt-2">{entry.name}: {entry.value}</p>
+                          </>
                         ))}
                       </Pie>
                       <Tooltip />
@@ -299,7 +302,7 @@ export function Dashboard() {
                   <div className="h-[300px] flex items-center justify-center text-gray-400">
                     Nenhuma doação registrada
                   </div>
-                )}
+                )} */}
               </CardContent>
             </Card>
           </div>
@@ -446,7 +449,7 @@ export function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {alunosComMedalhas.slice(0, 10).map((aluno, index) => (
+                    {/* {alunosComMedalhas.slice(0, 10).map((aluno, index) => (
                     <div
                       key={aluno.id}
                       className={`flex items-center justify-between p-4 rounded-lg border-2 ${index < 3 ? "border-green-200 bg-green-50" : "border-gray-200"
@@ -477,7 +480,7 @@ export function Dashboard() {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  ))} */}
                 </div>
               )}
             </CardContent>
@@ -494,7 +497,7 @@ export function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {MEDALHAS.map((medalha) => (
                   <div
                     key={medalha.nome}
@@ -516,7 +519,7 @@ export function Dashboard() {
                     </div>
                   </div>
                 ))}
-              </div>
+              </div> */}
             </CardContent>
           </Card>
         </TabsContent>
