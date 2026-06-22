@@ -16,7 +16,7 @@ import { UsuarioPermissao } from "@/types/usuario-types";
 
 const ModalUsuario = () => {
   const { addUsuario, updateUsuario, editingId, setEditingId, openModal, setOpenModal,
-    usuarioSelected, setUsuarioSelected, setUsuarios } = useUsuarios();
+    usuarioSelected, setUsuarioSelected } = useUsuarios();
 
 
   const [formData, setFormData] = useState({
@@ -59,13 +59,12 @@ const ModalUsuario = () => {
       toast.error(`Campos obrigatórios não preenchidos: ${errors.join(", ")}`);
       return;
 
-    }
-    let usuario;
+    } 
     if (editingId) {
-      usuario = updateUsuario(editingId, formData);
+      updateUsuario(editingId, formData);
       toast.success("Usuário atualizado com sucesso!");
     } else {
-      usuario = addUsuario(formData);
+      addUsuario(formData);
       toast.success("Usuário criado com sucesso!");
     }
     resetForm();

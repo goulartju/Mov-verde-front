@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode, use } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import type { Escola } from "@/types/escola-types"
 import { EscolasService } from '@/services/escolas.service';

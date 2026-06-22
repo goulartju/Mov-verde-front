@@ -34,7 +34,7 @@ export const AlunosProvider = ({ children }: { children: ReactNode }) => {
   const fetchAlunos = async () => {
     try {
       const data = await AlunosService.getAll();
-      setAlunos(data);
+      setAlunos(Array.isArray(data) ? data : []);
     } catch (error) {
       toast.error("Erro ao carregar alunos. Tente novamente.");
     }

@@ -88,7 +88,7 @@ export const UsuariosProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <UsuariosContext.Provider value={{
-      usuarios, addUsuario, updateUsuario, handleDelete, handleEdit,
+      usuarios, addUsuario, updateUsuario, handleDelete, handleEdit, setUsuarios,
       openModal, setOpenModal, editingId, setEditingId, usuarioSelected, setUsuarioSelected, fetchUsuarios
     }}>
       {children}
