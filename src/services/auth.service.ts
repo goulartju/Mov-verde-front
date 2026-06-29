@@ -46,7 +46,7 @@ const AuthService = {
 
   login: async (params: LoginParams): Promise<void> => {
     const data = await HttpRequest.post<LoginResponse>({
-      url: `${config.API.AUTHORIZATION_URL}/Auth/login`,
+      url: '/Auth/login',
       body: params,
     });
 
@@ -73,7 +73,7 @@ const AuthService = {
     if (token) return token;
 
     const data = await HttpRequest.get<GetTokenResponse>({
-      url: `${config.API.AUTHORIZATION_URL}/Auth/refresh-token`,
+      url: '/Auth/refresh-token',
       params,
     });
 
@@ -98,7 +98,7 @@ const AuthService = {
     if (!refreshToken) throw new Error('Refresh token not found');
 
     const data = await HttpRequest.post<GetTokenResponse>({
-      url: `${config.API.AUTHORIZATION_URL}/login/token/refresh`,
+      url: '/Auth/refresh-token',
       body: { refresh_token: refreshToken },
     });
 
