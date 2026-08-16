@@ -1,12 +1,14 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
 import { useAlunos } from "@/pages/Alunos/AlunosContext";
+import { useTurmas } from "@/pages/Turmas/TurmasContext";
 import DatePicker from "@/components/ui/date-picker";
 import { parseStringToDate } from "@/lib/datetime-utils";
 import { format } from "date-fns";
@@ -14,10 +16,12 @@ import { format } from "date-fns";
 
 const ModalAluno = () => {
   const { editingId, setEditingId, openModal, setOpenModal, addAluno, updateAluno, alunoSelected } = useAlunos();
+  const { turmas } = useTurmas();
 
   const [formData, setFormData] = useState({
     nome: "",
     dataNascimento: "",
+    turmaId: "",
     ativo: true,
   });
 
@@ -28,12 +32,14 @@ const ModalAluno = () => {
         setFormData({
           nome: alunoSelected?.nome || "",
           dataNascimento: alunoSelected?.dataNascimento || "",
+          turmaId: alunoSelected?.turmaId || "",
           ativo: alunoSelected?.ativo ?? true,
         });
       } else {
         setFormData({
           nome: "",
           dataNascimento: "",
+          turmaId: "",
           ativo: true
         });
       }
@@ -44,6 +50,7 @@ const ModalAluno = () => {
     setFormData({
       nome: "",
       dataNascimento: "",
+      turmaId: "",
       ativo: true,
     });
     setEditingId(null);
@@ -53,7 +60,7 @@ const ModalAluno = () => {
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!formData.nome || !formData.dataNascimento) {
+    if (!formData.nome || !formData.dataNascimento || !formData.turmaId) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
@@ -61,6 +68,7 @@ const ModalAluno = () => {
     const payload: any = {
       nome: formData.nome,
       dataNascimento: formData.dataNascimento,
+      turmaId: formData.turmaId,
       ativo: formData.ativo
     };
 
@@ -121,6 +129,26 @@ const ModalAluno = () => {
               label=""
               onChange={(date: Date | undefined) => setFormData({ ...formData, dataNascimento: date ? format(date, 'yyyy-MM-dd') : '' })}
             />
+          </div>
+          <div>
+            <Label htmlFor="turma">Turma <span className="text-red-500">*</span></Label>
+            <Select
+              value={formData.turmaId}
+              onValueChange={(turmaId) => setFormData({ ...formData, turmaId })}
+            >
+              <SelectTrigger id="turma">
+                <SelectValue placeholder="Selecione a turma" />
+              </SelectTrigger>
+              <SelectContent>
+                {turmas
+                  .filter((turma) => turma.ativo)
+                  .map((turma) => (
+                    <SelectItem key={turma.id} value={turma.id}>
+                      {turma.nome} - {turma.anoEscolar}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex justify-end gap-4 items-center">
             <Label htmlFor="ativo">Ativo</Label>
