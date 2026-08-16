@@ -1,5 +1,4 @@
 import { useAlunos } from "./AlunosContext";
-import { useTurmas } from "@/pages/Turmas/TurmasContext";
 import ModalAluno from "./modal-aluno";
 import {
   Card,
@@ -21,13 +20,6 @@ import { Pencil, Trash2, UserPlus } from "lucide-react";
 
 export function Alunos() {
   const { alunos, handleDelete, handleEdit } = useAlunos();
-  const { turmas } = useTurmas();
-
-  const getTurmaNome = (turmaId?: string) => {
-    if (!turmaId) return "Não vinculada";
-
-    return turmas.find((turma) => turma.id === turmaId)?.nome ?? "Turma não encontrada";
-  };
 
 
   return (
@@ -146,7 +138,6 @@ export function Alunos() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
-                  <TableHead>Turma</TableHead>
                   <TableHead>Data de Nascimento</TableHead>
                   <TableHead className="text-right">
                     Ações
@@ -159,7 +150,6 @@ export function Alunos() {
                     <TableCell className="font-medium">
                       {aluno.nome}
                     </TableCell>
-                    <TableCell>{getTurmaNome(aluno.turmaId)}</TableCell>
                     <TableCell>
                       {new Date(
                         aluno.dataNascimento,
