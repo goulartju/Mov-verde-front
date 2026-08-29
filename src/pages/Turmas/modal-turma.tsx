@@ -116,7 +116,7 @@ const ModalTurma = () => {
           Nova Turma
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[70vh] overflow-y-auto sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
             {editingId ? "Editar Turma" : "Nova Turma"}
