@@ -7,11 +7,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Plus, Gift, Check, Search, X } from "lucide-react";
 import { toast } from "sonner";
-import type { DoacoesFilter, DoacoesUpdatePayload } from "@/types/doacoes-types";
+import type {
+  DoacoesFilter,
+  DoacoesUpdatePayload,
+} from "@/types/doacoes-types";
 
 type DoacaoRegistro = {
   tampinhas: number;
@@ -23,23 +39,35 @@ export function Doacoes() {
   const { calendarios } = useCalendarios();
   const { escolas } = useEscolas();
 
-  const { doacoes, setFiltroDoacoes, buscarDoacoes, updateDoacoes } = useDoacoes();
+  const { doacoes, setFiltroDoacoes, buscarDoacoes, updateDoacoes } =
+    useDoacoes();
   const [selectedEscola, setSelectedEscola] = useState("");
   const [selectedTurma, setSelectedTurma] = useState("");
   const [selectedCalendario, setSelectedCalendario] = useState("");
-  const [selectedData, setSelectedData] = useState(new Date().toISOString().split("T")[0]);
-  const [turmaDoacoes, setTurmaDoacoes] = useState<Map<string, DoacaoRegistro>>(new Map());
+  const [selectedData, setSelectedData] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const [turmaDoacoes, setTurmaDoacoes] = useState<Map<string, DoacaoRegistro>>(
+    new Map(),
+  );
   const [modoEdicao, setModoEdicao] = useState(false);
   const [buscaRealizada, setBuscaRealizada] = useState(false);
 
-  const doacoesFilter = useMemo<DoacoesFilter>(() => ({
-    calendarioId: selectedCalendario || undefined,
-    data: selectedData || undefined,
-    escolaId: selectedEscola || undefined,
-    turmaId: selectedTurma || undefined,
-  }), [selectedCalendario, selectedData, selectedEscola, selectedTurma]);
+  const doacoesFilter = useMemo<DoacoesFilter>(
+    () => ({
+      calendarioId: selectedCalendario || undefined,
+      data: selectedData || undefined,
+      escolaId: selectedEscola || undefined,
+      turmaId: selectedTurma || undefined,
+    }),
+    [selectedCalendario, selectedData, selectedEscola, selectedTurma],
+  );
 
-  const turmasFiltradas = turmas.filter((t) => t.escolaId === selectedEscola);
+  const turmasFiltradas = turmas
+    .filter((turma) => turma.escolaId === selectedEscola)
+    .sort((a, b) =>
+      a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" }),
+    );
 
   const resetEdicao = () => {
     setTurmaDoacoes(new Map());
@@ -52,7 +80,12 @@ export function Doacoes() {
   };
 
   const handleBuscar = async () => {
-    if (!selectedCalendario || !selectedData || !selectedEscola || !selectedTurma) {
+    if (
+      !selectedCalendario ||
+      !selectedData ||
+      !selectedEscola ||
+      !selectedTurma
+    ) {
       toast.error("Selecione calendario, data, escola e turma antes de buscar");
       return;
     }
@@ -94,7 +127,7 @@ export function Doacoes() {
       return;
     }
 
-    if (doacoes.some(doacao => !doacao.id)) {
+    if (doacoes.some((doacao) => !doacao.id)) {
       toast.error("Busque novamente antes de salvar. Existem doacoes sem id.");
       return;
     }
@@ -126,8 +159,12 @@ export function Doacoes() {
     }
   };
 
-  const handleUpdateDoacaoField = (matriculaId: string, field: "tampinhas" | "lacres", value: number) => {
-    setTurmaDoacoes(prev => {
+  const handleUpdateDoacaoField = (
+    matriculaId: string,
+    field: "tampinhas" | "lacres",
+    value: number,
+  ) => {
+    setTurmaDoacoes((prev) => {
       const newMap = new Map(prev);
       const doacao = newMap.get(matriculaId) || { tampinhas: 0, lacres: 0 };
       newMap.set(matriculaId, { ...doacao, [field]: value });
@@ -162,13 +199,21 @@ export function Doacoes() {
 
   const getTotalTampinhas = (matriculaId: string) => {
     return doacoes
-      .filter(d => d.matriculaId === matriculaId && d.calendarioId === selectedCalendario)
+      .filter(
+        (d) =>
+          d.matriculaId === matriculaId &&
+          d.calendarioId === selectedCalendario,
+      )
       .reduce((sum, d) => sum + d.qtdTampinha, 0);
   };
 
   const getTotalLacres = (matriculaId: string) => {
     return doacoes
-      .filter(d => d.matriculaId === matriculaId && d.calendarioId === selectedCalendario)
+      .filter(
+        (d) =>
+          d.matriculaId === matriculaId &&
+          d.calendarioId === selectedCalendario,
+      )
       .reduce((sum, d) => sum + d.qtdLacre, 0);
   };
 
@@ -187,16 +232,21 @@ export function Doacoes() {
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
               <Label htmlFor="calendario">Calendario/Ano *</Label>
-              <Select value={selectedCalendario} onValueChange={handleCalendarioChange}>
+              <Select
+                value={selectedCalendario}
+                onValueChange={handleCalendarioChange}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o calendario" />
                 </SelectTrigger>
                 <SelectContent>
-                  {calendarios.filter(c => c.ativo).map((calendario) => (
-                    <SelectItem key={calendario.id} value={calendario.id}>
-                      {calendario.ano}
-                    </SelectItem>
-                  ))}
+                  {calendarios
+                    .filter((c) => c.ativo)
+                    .map((calendario) => (
+                      <SelectItem key={calendario.id} value={calendario.id}>
+                        {calendario.ano}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -251,7 +301,12 @@ export function Doacoes() {
               <Button
                 className="w-full bg-green-600 hover:bg-green-700"
                 onClick={handleBuscar}
-                disabled={!selectedCalendario || !selectedData || !selectedEscola || !selectedTurma}
+                disabled={
+                  !selectedCalendario ||
+                  !selectedData ||
+                  !selectedEscola ||
+                  !selectedTurma
+                }
               >
                 <Search className="h-4 w-4 mr-2" />
                 Buscar
@@ -287,10 +342,7 @@ export function Doacoes() {
                     <Check className="h-4 w-4 mr-2" />
                     Salvar Todas
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleCancelar}
-                  >
+                  <Button variant="outline" onClick={handleCancelar}>
                     <X className="h-4 w-4 mr-2" />
                     Cancelar
                   </Button>
@@ -304,32 +356,38 @@ export function Doacoes() {
                 <p>Nenhuma doacao encontrada para os filtros selecionados</p>
               </div>
             ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Aluno</TableHead>
-                      {modoEdicao && (
-                        <>
-                          <TableHead className="text-center">Tampinhas</TableHead>
-                          <TableHead className="text-center">Lacres</TableHead>
-                        </>
-                      )}
-                      {!modoEdicao && selectedCalendario && (
-                        <>
-                          <TableHead className="text-center">Total Tampinhas</TableHead>
-                          <TableHead className="text-center">Total Lacres</TableHead>
-                        </>
-                      )}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {doacoes.map((doacaoExistente) => {
-                      const matriculaId = doacaoExistente.matriculaId;
-                      const doacao = turmaDoacoes.get(matriculaId);
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Aluno</TableHead>
+                    {modoEdicao && (
+                      <>
+                        <TableHead className="text-center">Tampinhas</TableHead>
+                        <TableHead className="text-center">Lacres</TableHead>
+                      </>
+                    )}
+                    {!modoEdicao && selectedCalendario && (
+                      <>
+                        <TableHead className="text-center">
+                          Total Tampinhas
+                        </TableHead>
+                        <TableHead className="text-center">
+                          Total Lacres
+                        </TableHead>
+                      </>
+                    )}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {doacoes.map((doacaoExistente) => {
+                    const matriculaId = doacaoExistente.matriculaId;
+                    const doacao = turmaDoacoes.get(matriculaId);
 
                     return (
                       <TableRow key={doacaoExistente.id ?? matriculaId}>
-                        <TableCell className="font-medium">{doacaoExistente.nomeAluno}</TableCell>
+                        <TableCell className="font-medium">
+                          {doacaoExistente.nomeAluno}
+                        </TableCell>
                         {modoEdicao ? (
                           <>
                             <TableCell className="text-center">
@@ -337,7 +395,13 @@ export function Doacoes() {
                                 type="number"
                                 min="0"
                                 value={doacao?.tampinhas ?? 0}
-                                onChange={(e) => handleUpdateDoacaoField(matriculaId, "tampinhas", parseInt(e.target.value) || 0)}
+                                onChange={(e) =>
+                                  handleUpdateDoacaoField(
+                                    matriculaId,
+                                    "tampinhas",
+                                    parseInt(e.target.value) || 0,
+                                  )
+                                }
                                 className="w-24 mx-auto"
                                 placeholder="0"
                               />
@@ -347,7 +411,13 @@ export function Doacoes() {
                                 type="number"
                                 min="0"
                                 value={doacao?.lacres ?? 0}
-                                onChange={(e) => handleUpdateDoacaoField(matriculaId, "lacres", parseInt(e.target.value) || 0)}
+                                onChange={(e) =>
+                                  handleUpdateDoacaoField(
+                                    matriculaId,
+                                    "lacres",
+                                    parseInt(e.target.value) || 0,
+                                  )
+                                }
                                 className="w-24 mx-auto"
                                 placeholder="0"
                               />
@@ -356,9 +426,9 @@ export function Doacoes() {
                         ) : selectedCalendario ? (
                           <>
                             <TableCell className="text-center font-semibold text-green-600">
-                                {getTotalTampinhas(matriculaId)}
-                              </TableCell>
-                              <TableCell className="text-center font-semibold text-emerald-600">
+                              {getTotalTampinhas(matriculaId)}
+                            </TableCell>
+                            <TableCell className="text-center font-semibold text-emerald-600">
                               {getTotalLacres(matriculaId)}
                             </TableCell>
                           </>
@@ -366,8 +436,8 @@ export function Doacoes() {
                       </TableRow>
                     );
                   })}
-                  </TableBody>
-                </Table>
+                </TableBody>
+              </Table>
             )}
           </CardContent>
         </Card>
