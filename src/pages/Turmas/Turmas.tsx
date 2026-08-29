@@ -293,9 +293,11 @@ export function Turmas() {
                   <TableRow key={aluno.id}>
                     <TableCell className="font-medium">{aluno.nome}</TableCell>
                     <TableCell>
-                      {new Date(aluno.dataNascimento).toLocaleDateString(
-                        "pt-BR",
-                      )}
+                      {aluno.dataNascimento
+                        ? new Date(aluno.dataNascimento).toLocaleDateString(
+                            "pt-BR",
+                          )
+                        : "-"}
                     </TableCell>
                   </TableRow>
                 ))}

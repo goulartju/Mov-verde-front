@@ -1,11 +1,6 @@
 import { useAlunos } from "./AlunosContext";
 import ModalAluno from "./modal-aluno";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -17,25 +12,29 @@ import {
 } from "@/components/ui/table";
 import { Pencil, Trash2, UserPlus } from "lucide-react";
 
-
 export function Alunos() {
   const { alunos, handleDelete, handleEdit } = useAlunos();
+  const normalizarNome = (nome: string) =>
+    nome
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[\u200B-\u200D\uFEFF]/g, "")
+      .trim()
+      .toLocaleLowerCase("pt-BR");
 
+  const alunosOrdenados = [...alunos].sort((a, b) =>
+    normalizarNome(a.nome).localeCompare(normalizarNome(b.nome), "pt-BR"),
+  );
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Alunos
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Gerencie os alunos participantes
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Alunos</h1>
+          <p className="text-gray-500 mt-1">Gerencie os alunos participantes</p>
         </div>
         <ModalAluno />
-
       </div>
 
       {/* Filtros */}
@@ -137,24 +136,16 @@ export function Alunos() {
             <Table>
               <TableHeader>
                 <TableRow>
+                    <TableHead className="w-16">Nº</TableHead>
                   <TableHead>Nome</TableHead>
-                  <TableHead>Data de Nascimento</TableHead>
-                  <TableHead className="text-right">
-                    Ações
-                  </TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {alunos.map((aluno) => (
+                  {alunosOrdenados.map((aluno, indice) => (
                   <TableRow key={aluno.id}>
-                    <TableCell className="font-medium">
-                      {aluno.nome}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(
-                        aluno.dataNascimento,
-                      ).toLocaleDateString("pt-BR")}
-                    </TableCell>
+                    <TableCell>{indice + 1}</TableCell>
+                    <TableCell className="font-medium">{aluno.nome}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
