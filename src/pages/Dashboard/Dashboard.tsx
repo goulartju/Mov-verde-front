@@ -1,10 +1,33 @@
-// import { useEscolas } from "@/pages/Escolas/EscolasContext";
-// import { useTurmas } from "@/pages/Turmas/TurmasContext";
-// import { useAlunos } from "@/pages/Alunos/AlunosContext";
-// import { useDoacoes } from "@/pages/Doacoes/DoacoesContext";
+import { useEffect, useMemo, useState } from "react";
+import { useEscolas } from "@/pages/Escolas/EscolasContext";
+import { useTurmas } from "@/pages/Turmas/TurmasContext";
+import { useAlunos } from "@/pages/Alunos/AlunosContext";
+import { DoacoesService } from "@/services/doacoes.service";
+import type { Doacao } from "@/types/doacoes-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { School, Users, UserPlus, Gift, TrendingUp, Award, Trophy, Star } from "lucide-react";
-//import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import {
+  School,
+  Users,
+  UserPlus,
+  Gift,
+  TrendingUp,
+  Award,
+  Trophy,
+  Star,
+} from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Sistema de Medalhas - Inspirado em Escoteiros
@@ -31,6 +54,67 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // ];
 
 export function Dashboard() {
+  const { escolas } = useEscolas();
+  const { turmas } = useTurmas();
+  const { alunos } = useAlunos();
+  const [doacoes, setDoacoes] = useState<Doacao[]>([]);
+  const [carregandoDoacoes, setCarregandoDoacoes] = useState(true);
+
+  useEffect(() => {
+    DoacoesService.getAll()
+      .then((dados) => setDoacoes(Array.isArray(dados) ? dados : []))
+      .catch((error) =>
+        console.error("Erro ao carregar doacoes do dashboard:", error),
+      )
+      .finally(() => setCarregandoDoacoes(false));
+  }, []);
+
+  const { totalTampinhas, totalLacres, totalDoacoes, doacoesPorEscola } =
+    useMemo(() => {
+      const valorTampinhas = (doacao: Doacao) =>
+        doacao.tampinhas ?? doacao.qtdTampinha ?? 0;
+      const valorLacres = (doacao: Doacao) =>
+        doacao.lacres ?? doacao.qtdLacre ?? 0;
+
+      const totalTampinhas = doacoes.reduce(
+        (total, doacao) => total + valorTampinhas(doacao),
+        0,
+      );
+      const totalLacres = doacoes.reduce(
+        (total, doacao) => total + valorLacres(doacao),
+        0,
+      );
+      const doacoesPorEscola = escolas
+        .map((escola) => {
+          const doacoesDaEscola = doacoes.filter(
+            (doacao) => doacao.escolaId === escola.id,
+          );
+          const tampinhas = doacoesDaEscola.reduce(
+            (total, doacao) => total + valorTampinhas(doacao),
+            0,
+          );
+          const lacres = doacoesDaEscola.reduce(
+            (total, doacao) => total + valorLacres(doacao),
+            0,
+          );
+
+          return { nome: escola.nome, tampinhas, lacres };
+        })
+        .filter((escola) => escola.tampinhas > 0 || escola.lacres > 0);
+
+      return {
+        totalTampinhas,
+        totalLacres,
+        totalDoacoes: totalTampinhas + totalLacres,
+        doacoesPorEscola,
+      };
+    }, [doacoes, escolas]);
+
+  const tiposDoacao = [
+    { nome: "Tampinhas", valor: totalTampinhas },
+    { nome: "Lacres", valor: totalLacres },
+  ];
+
   // const { escolas } = useEscolas();
   // const { turmas } = useTurmas();
   // const { alunos } = useAlunos();
@@ -157,14 +241,18 @@ export function Dashboard() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Visão geral da arrecadação e gamificação</p>
+        <p className="text-gray-500 mt-1">
+          Visão geral da arrecadação e gamificação
+        </p>
       </div>
 
       <Tabs defaultValue="estatisticas" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="estatisticas">Estatísticas</TabsTrigger>
           <TabsTrigger value="gamificacao">Gamificação</TabsTrigger>
-          <TabsTrigger value="sistema-medalhas">Sistema de Medalhas</TabsTrigger>
+          <TabsTrigger value="sistema-medalhas">
+            Sistema de Medalhas
+          </TabsTrigger>
         </TabsList>
 
         {/* Aba de Estatísticas */}
@@ -177,8 +265,8 @@ export function Dashboard() {
                 <School className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                {/* <div className="text-2xl font-bold">{escolas.length}</div>
-                <p className="text-xs text-gray-500">Total cadastradas</p> */}
+                <div className="text-2xl font-bold">{escolas.length}</div>
+                <p className="text-xs text-gray-500">Total cadastradas</p>
               </CardContent>
             </Card>
 
@@ -188,8 +276,8 @@ export function Dashboard() {
                 <Users className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
-                {/* <div className="text-2xl font-bold">{turmas.length}</div>
-                <p className="text-xs text-gray-500">Total cadastradas</p> */}
+                <div className="text-2xl font-bold">{turmas.length}</div>
+                <p className="text-xs text-gray-500">Total cadastradas</p>
               </CardContent>
             </Card>
 
@@ -199,8 +287,8 @@ export function Dashboard() {
                 <UserPlus className="h-4 w-4 text-purple-600" />
               </CardHeader>
               <CardContent>
-                {/* <div className="text-2xl font-bold">{alunos.length}</div>
-                <p className="text-xs text-gray-500">Total cadastrados</p> */}
+                <div className="text-2xl font-bold">{alunos.length}</div>
+                <p className="text-xs text-gray-500">Total cadastrados</p>
               </CardContent>
             </Card>
 
@@ -210,33 +298,41 @@ export function Dashboard() {
                 <Gift className="h-4 w-4 text-orange-600" />
               </CardHeader>
               <CardContent>
-                {/* <div className="text-2xl font-bold">{doacoes.length}</div>
-                <p className="text-xs text-gray-500">Total registradas</p> */}
+                <div className="text-2xl font-bold">
+                  {totalDoacoes.toLocaleString("pt-BR")}
+                </div>
+                <p className="text-xs text-gray-500">
+                  Tampinhas e lacres arrecadados
+                </p>
               </CardContent>
             </Card>
           </div>
 
           {/* Cards de Totais */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <Card className="bg-gradient-to-br from-green-50 to-[#0e55b7]/15 border-emerald-200">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Tampinhas Arrecadadas</CardTitle>
-                <TrendingUp className="h-6 w-6 text-green-600" />
+                <CardTitle className="text-[#0e55b7]">Lacres Arrecadados</CardTitle>
+                <Award className="h-6 w-6 text-[#0e55b7]" />
               </CardHeader>
               <CardContent>
-                {/* <div className="text-4xl font-bold text-green-700">{totalTampinhas.toLocaleString('pt-BR')}</div> */}
-                <p className="text-sm text-green-600 mt-2">Total acumulado</p>
+                <div className="text-4xl font-bold text-[#0e55b7]">
+                  {totalLacres.toLocaleString("pt-BR")}
+                </div>
+                <p className="text-sm text-[#0e55b7] mt-2">Total acumulado</p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
+            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Lacres Arrecadados</CardTitle>
-                <Award className="h-6 w-6 text-emerald-600" />
+                <CardTitle className="text-green-600">Tampinhas Arrecadadas</CardTitle>
+                <TrendingUp className="h-6 w-6 text-green-600" />
               </CardHeader>
               <CardContent>
-                {/* <div className="text-4xl font-bold text-emerald-700">{totalLacres.toLocaleString('pt-BR')}</div> */}
-                <p className="text-sm text-emerald-600 mt-2">Total acumulado</p>
+                <div className="text-4xl font-bold text-green-600">
+                  {totalTampinhas.toLocaleString("pt-BR")}
+                </div>
+                <p className="text-sm text-green-600 mt-2">Total acumulado</p>
               </CardContent>
             </Card>
           </div>
@@ -249,6 +345,31 @@ export function Dashboard() {
                 <CardTitle>Arrecadação por Escola</CardTitle>
               </CardHeader>
               <CardContent>
+                {carregandoDoacoes ? (
+                  <div className="flex h-[300px] items-center justify-center text-gray-400">
+                    Carregando doações...
+                  </div>
+                ) : doacoesPorEscola.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={doacoesPorEscola}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="nome" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar
+                        dataKey="tampinhas"
+                        fill="#16a34a"
+                        name="Tampinhas"
+                      />
+                      <Bar dataKey="lacres" fill="#0f5dc9" name="Lacres" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-[300px] items-center justify-center text-gray-400">
+                    Nenhuma doação registrada
+                  </div>
+                )}
                 {/* {doacoesPorEscola.length > 0 ? (
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={doacoesPorEscola}>
@@ -275,6 +396,36 @@ export function Dashboard() {
                 <CardTitle>Distribuição de Doações</CardTitle>
               </CardHeader>
               <CardContent>
+                {carregandoDoacoes ? (
+                  <div className="flex h-[300px] items-center justify-center text-gray-400">
+                    Carregando doações...
+                  </div>
+                ) : totalTampinhas > 0 || totalLacres > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={tiposDoacao}
+                        dataKey="valor"
+                        nameKey="nome"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        label={({ name, percent }) =>
+                          `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
+                        }
+                      >
+                        <Cell fill="#16a34a" />
+                        <Cell fill="#0f5dc9" />
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-[300px] items-center justify-center text-gray-400">
+                    Nenhuma doação registrada
+                  </div>
+                )}
                 {/* {totalTampinhas > 0 || totalLacres > 0 ? (
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
@@ -310,7 +461,6 @@ export function Dashboard() {
 
         {/* Aba de Gamificação */}
         <TabsContent value="gamificacao" className="space-y-4">
-
           {/* Conquistas Especiais */}
           <Card>
             <CardHeader>
@@ -350,7 +500,7 @@ export function Dashboard() {
                     </div>
                   )} */}
 
-                  {/* Maior Doação de Lacres da Semana */}
+              {/* Maior Doação de Lacres da Semana */}
               {/* {conquistaSemanalLacres && (
                     <div className="p-4 rounded-lg border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
                       <div className="flex items-center gap-2 mb-3">
@@ -373,7 +523,7 @@ export function Dashboard() {
                     </div>
                   )} */}
 
-                  {/* Maior Doação Total da Semana */}
+              {/* Maior Doação Total da Semana */}
               {/* {conquistaSemanalTotal && (
                     <div className="p-4 rounded-lg border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-white">
                       <div className="flex items-center gap-2 mb-3">
@@ -523,7 +673,6 @@ export function Dashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-
       </Tabs>
     </div>
   );
