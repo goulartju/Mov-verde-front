@@ -12,8 +12,7 @@ import {
   Gift,
   TrendingUp,
   Award,
-  Trophy,
-  Star,
+  Trophy
 } from "lucide-react";
 import {
   Bar,
@@ -28,6 +27,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { Medalhas } from "@/types/ranking-types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
@@ -93,79 +93,6 @@ export function Dashboard() {
     { nome: "Lacres", valor: totalLacres },
   ];
 
-  const MEDALHAS = [
-    {
-      nome: "Iniciante",
-      totalNecessario: 100,
-      imagem:
-        "https://images.pexels.com/photos/35445396/pexels-photo-35445396.jpeg?auto=compress&cs=tinysrgb&w=400",
-      descricao: "Primeiros passos na coleta",
-    },
-    {
-      nome: "Aprendiz Ecológico",
-      totalNecessario: 300,
-      imagem:
-        "https://images.pexels.com/photos/16185426/pexels-photo-16185426.jpeg?auto=compress&cs=tinysrgb&w=400",
-      descricao: "Gera consciência ambiental",
-    },
-    {
-      nome: "Discípulo da Coleta",
-      totalNecessario: 800,
-      imagem:
-        "https://images.pexels.com/photos/18151490/pexels-photo-18151490.jpeg?auto=compress&cs=tinysrgb&w=400",
-      descricao: "Aumenta o impacto ecológico",
-    },
-    {
-      nome: "Intermediário Verde",
-      totalNecessario: 1500,
-      imagem:
-        "https://images.pexels.com/photos/9637636/pexels-photo-9637636.jpeg?auto=compress&cs=tinysrgb&w=400",
-      descricao: "Se destaca pela presença verde",
-    },
-    {
-      nome: "Intermediário Verde +",
-      totalNecessario: 2200,
-      imagem:
-        "https://images.pexels.com/photos/19289098/pexels-photo-19289098.jpeg?auto=compress&cs=tinysrgb&w=400",
-      descricao: "Continuidade e dedicação",
-    },
-    {
-      nome: "Grande da Coleta",
-      totalNecessario: 3500,
-      imagem:
-        "https://images.pexels.com/photos/26729471/pexels-photo-26729471.jpeg?auto=compress&cs=tinysrgb&w=400",
-      descricao: "Grande contribuição ambiental",
-    },
-    {
-      nome: "Lenda da Reciclagem",
-      totalNecessario: 5000,
-      imagem:
-        "https://images.pexels.com/photos/34276821/pexels-photo-34276821.jpeg?auto=compress&cs=tinysrgb&w=400",
-      descricao: "Referência na reciclagem",
-    },
-    {
-      nome: "Highlander Verde",
-      totalNecessario: 8000,
-      imagem:
-        "https://images.pexels.com/photos/17101455/pexels-photo-17101455.jpeg?auto=compress&cs=tinysrgb&w=400",
-      descricao: "Nível de impacto excepcional",
-    },
-    {
-      nome: "Mestre Eco",
-      totalNecessario: 10000,
-      imagem:
-        "https://images.pexels.com/photos/18056653/pexels-photo-18056653.jpeg?auto=compress&cs=tinysrgb&w=400",
-      descricao: "Maior nível de sustentabilidade",
-    },
-    {
-      nome: "Rei Highlander Mestre Eco",
-      totalNecessario: 15000,
-      imagem:
-        "https://images.pexels.com/photos/16149952/pexels-photo-16149952.jpeg?auto=compress&cs=tinysrgb&w=400",
-      descricao: "Épico e inigualável",
-    },
-  ];
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -180,7 +107,7 @@ export function Dashboard() {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="estatisticas">Estatísticas</TabsTrigger>
           <TabsTrigger value="sistema-medalhas">
-            Sistema de Medalhas
+            Sistema de Conquistas
           </TabsTrigger>
         </TabsList>
 
@@ -360,7 +287,7 @@ export function Dashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg font-bold text-slate-800">
                 <Trophy className="h-5 w-5 text-yellow-500" />
-                Sistema de Medalhas
+                Sistema de Conquistas
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -372,7 +299,7 @@ export function Dashboard() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {MEDALHAS.map((medalha) => (
+                {Medalhas.map((medalha) => (
                   <div
                     key={medalha.nome}
                     className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm"

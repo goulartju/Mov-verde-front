@@ -30,6 +30,5 @@ export enum AnoSerie {
   SEXTO = "Sexto",
   SETIMO = "Sétimo",
   OITAVO = "Oitavo",
-  NONO = "Nono",
-  DECIMO = "Décimo",
+  NONO = "Nono"
 }

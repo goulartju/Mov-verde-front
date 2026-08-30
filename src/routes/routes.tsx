@@ -14,6 +14,7 @@ import { AlunosProvider } from "@/pages/Alunos/AlunosContext";
 import { Doacoes } from "@/pages/Doacoes/Doacoes";
 import { DoacoesProvider } from "@/pages/Doacoes/DoacoesContext";
 import { Rankings } from "@/pages/Rankings/Rankings";
+import { TurmaDetalhesPage } from "@/pages/Rankings/TurmaDetalhesPage";
 import { Administrativo } from "@/pages/Administrativo/Administrativo";
 import { UsuariosProvider } from "@/pages/Administrativo/UsuariosContext";
 import { Dashboard } from "@/pages/Dashboard/Dashboard";
@@ -127,6 +128,10 @@ export const Routes: React.FC = () => {
                   </TurmasProvider>
                 </EscolasProvider>
               ),
+            },
+            {
+              path: 'rankings/turma/:turmaId',
+              element: <TurmaDetalhesPage />,
             },
             {
               path: 'administrativo',

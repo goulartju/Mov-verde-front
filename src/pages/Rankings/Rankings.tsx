@@ -1,228 +1,410 @@
-import { useAlunos } from "@/pages/Alunos/AlunosContext";
-import { useTurmas } from "@/pages/Turmas/TurmasContext";
-import { useEscolas } from "@/pages/Escolas/EscolasContext";
-import { useDoacoes } from "@/pages/Doacoes/DoacoesContext";
+﻿import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, Medal, Award, Crown } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useEscolas } from "@/pages/Escolas/EscolasContext";
+import { RankingsService } from "@/services/rankings.service";
+import type {
+  AlunoRankingItem,
+  EscolaRankingItem,
+  TurmaRankingItem
+} from "@/types/ranking-types";
+import { Medalhas } from "@/types/ranking-types";
+import { Award, Medal, Trophy, Users } from "lucide-react";
 
-// Sistema de Medalhas
-interface Medalha {
-  nome: string;
-  cor: string;
-  icone: string;
-  minTampinhas: number;
-  minLacres: number;
-  minTotal: number;
-}
 
-const MEDALHAS: Medalha[] = [
-  { nome: "Iniciante", cor: "gray", icone: "🌱", minTampinhas: 0, minLacres: 0, minTotal: 0 },
-  { nome: "Bronze", cor: "orange", icone: "🥉", minTampinhas: 50, minLacres: 20, minTotal: 100 },
-  { nome: "Prata", cor: "gray", icone: "🥈", minTampinhas: 150, minLacres: 50, minTotal: 300 },
-  { nome: "Ouro", cor: "yellow", icone: "🥇", minTampinhas: 300, minLacres: 100, minTotal: 600 },
-  { nome: "Esmeralda", cor: "emerald", icone: "💎", minTampinhas: 500, minLacres: 200, minTotal: 1000 },
-  { nome: "Safira", cor: "blue", icone: "🔷", minTampinhas: 800, minLacres: 350, minTotal: 1500 },
-  { nome: "Rubi", cor: "red", icone: "💍", minTampinhas: 1200, minLacres: 500, minTotal: 2200 },
-  { nome: "Diamante", cor: "cyan", icone: "💠", minTampinhas: 1800, minLacres: 750, minTotal: 3200 },
-  { nome: "Mestre Eco", cor: "green", icone: "🌟", minTampinhas: 2500, minLacres: 1000, minTotal: 5000 },
-];
+const normalizeMedalName = (value?: string) =>
+  (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toLowerCase();
+
+const getMedalhaByTotal = (total: number) => {
+  const medalha = [...Medalhas].reverse().find((item) => total >= item.totalNecessario);
+  return medalha ?? Medalhas[0];
+};
+
+const getMedalhaByName = (nome?: string) => {
+  const nomeNormalizado = normalizeMedalName(nome);
+
+  if (!nomeNormalizado) {
+    return undefined;
+  }
+
+  return Medalhas.find(
+    (item) => normalizeMedalName(item.nome) === nomeNormalizado,
+  );
+};
+
+const getMedalhaByNameOrTotal = (nome?: string | null, total?: number) => {
+  const nomeValido = typeof nome === "string" ? nome.trim() : "";
+
+  if (nomeValido) {
+    const medalhaPeloNome = getMedalhaByName(nomeValido);
+
+    if (medalhaPeloNome) {
+      return medalhaPeloNome;
+    }
+  }
+
+  if (typeof total === "number") {
+    return getMedalhaByTotal(total);
+  }
+
+  return getMedalhaByTotal(0);
+};
+
+const getMedalhaImage = (nome?: string | null, total?: number) => {
+  const nomeValido = typeof nome === "string" ? nome.trim() : "";
+
+  if (!nomeValido) {
+    return undefined;
+  }
+
+  return getMedalhaByNameOrTotal(nomeValido, total).imagem;
+};
+
+const getMedalIcon = (position: number) => {
+  if (position === 0) return <Medal className="h-6 w-6 text-yellow-700" />;
+  if (position === 1) return <Medal className="h-6 w-6 text-gray-600" />;
+  if (position === 2) return <Medal className="h-6 w-6 text-orange-700" />;
+  return null;
+};
+
+const getRankingBadge = (position: number) => {
+  if (position === 0) return "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white";
+  if (position === 1) return "bg-gradient-to-r from-gray-300 to-gray-500 text-white";
+  if (position === 2) return "bg-gradient-to-r from-orange-400 to-orange-600 text-white";
+  return "bg-gray-100 text-gray-800";
+};
+
+const GUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const asGuid = (value?: string) => (value && GUID_REGEX.test(value) ? value : undefined);
+
+const getSchoolKey = (item: { id?: string; escolaId?: string; nome: string }) =>
+  item.escolaId || item.id || item.nome;
+
+const getTurmaKey = (item: { id?: string; turmaId?: string; nome: string }) =>
+  item.turmaId || item.id || item.nome;
+
+const TODOS_ALUNOS_TAB = "todos";
 
 export function Rankings() {
-  const { alunos } = useAlunos();
-  const { turmas } = useTurmas();
+  const location = useLocation();
   const { escolas } = useEscolas();
-  const { doacoes } = useDoacoes();
+  const escolasOrdenadas = useMemo(
+    () => [...escolas].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
+    [escolas],
+  );
+  const [rankingAlunos, setRankingAlunos] = useState<AlunoRankingItem[]>([]);
+  const [rankingEscolas, setRankingEscolas] = useState<EscolaRankingItem[]>([]);
+  const [rankingTurmas, setRankingTurmas] = useState<TurmaRankingItem[]>([]);
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string>("");
+  const [selectedAlunoSchoolId, setSelectedAlunoSchoolId] = useState<string>(TODOS_ALUNOS_TAB);
+  const [selectedTurmaId, setSelectedTurmaId] = useState<string>("");
+  const [topAlunosSemana, setTopAlunosSemana] = useState<AlunoRankingItem[]>([]);
+  const [loadingInicial, setLoadingInicial] = useState(false);
+  const [loadingAlunos, setLoadingAlunos] = useState(false);
+  const [loadingEscolas, setLoadingEscolas] = useState(false);
+  const [loadingTurmas, setLoadingTurmas] = useState(false);
+  const [activeTab, setActiveTab] = useState("alunos");
 
-  // Função para obter medalha do aluno
-  const getMedalhaAluno = (tampinhas: number, lacres: number, total: number): Medalha => {
-    for (let i = MEDALHAS.length - 1; i >= 0; i--) {
-      const medalha = MEDALHAS[i];
-      if (tampinhas >= medalha.minTampinhas && lacres >= medalha.minLacres && total >= medalha.minTotal) {
-        return medalha;
+  const loadSchoolOptions = async () => {
+    setLoadingEscolas(true);
+
+    try {
+      const dados = await RankingsService.getRankingEscolas();
+      const list = dados ?? [];
+      setRankingEscolas(list);
+
+      if (list.length > 0 && !selectedSchoolId) {
+        setSelectedSchoolId(getSchoolKey(list[0]));
       }
+    } catch (error) {
+      console.error("Erro ao carregar escolas:", error);
+      setRankingEscolas([]);
+    } finally {
+      setLoadingEscolas(false);
     }
-    return MEDALHAS[0];
   };
 
-  const getMedalhaColor = (cor: string) => {
-    const colors: Record<string, string> = {
-      gray: "bg-gray-400",
-      orange: "bg-orange-600",
-      yellow: "bg-yellow-400",
-      emerald: "bg-emerald-500",
-      blue: "bg-blue-500",
-      red: "bg-red-500",
-      cyan: "bg-cyan-400",
-      green: "bg-green-600",
-    };
-    return colors[cor] || "bg-gray-400";
+  const loadRankingSemanal = async () => {
+    setLoadingInicial(true);
+
+    try {
+      const semana = await RankingsService.getRankingSemanalAlunos();
+      setTopAlunosSemana(semana.slice(0, 3) ?? []);
+    } catch (error) {
+      console.error("Erro ao carregar ranking da semana:", error);
+      setTopAlunosSemana([]);
+    } finally {
+      setLoadingInicial(false);
+    }
   };
 
-  // Calcular ranking de alunos
-  const rankingAlunos = alunos
-    .map((aluno) => {
-      const doacoesAluno = doacoes.filter((d) => d.alunoId === aluno.id);
-      const totalTampinhas = doacoesAluno.reduce((sum, d) => sum + d.tampinhas, 0);
-      const totalLacres = doacoesAluno.reduce((sum, d) => sum + d.lacres, 0);
-      const totalGeral = totalTampinhas + totalLacres;
+  const loadRankingAlunos = async (escolaId?: string) => {
+    setLoadingAlunos(true);
 
-      const turma = turmas.find((t) => t.id === aluno.turmaId);
-      const escola = escolas.find((e) => e.id === turma?.escolaId);
-      const medalha = getMedalhaAluno(totalTampinhas, totalLacres, totalGeral);
-
-      return {
-        id: aluno.id,
-        nome: aluno.nome,
-        turma: turma?.nome || "-",
-        escola: escola?.nome || "-",
-        tampinhas: totalTampinhas,
-        lacres: totalLacres,
-        total: totalGeral,
-        medalha,
-      };
-    })
-    .sort((a, b) => b.total - a.total);
-
-  // Calcular ranking de turmas
-  const rankingTurmas = turmas
-    .map((turma) => {
-      const doacoesTurma = doacoes.filter((d) => d.turmaId === turma.id);
-      const totalTampinhas = doacoesTurma.reduce((sum, d) => sum + d.tampinhas, 0);
-      const totalLacres = doacoesTurma.reduce((sum, d) => sum + d.lacres, 0);
-      const totalGeral = totalTampinhas + totalLacres;
-
-      const escola = escolas.find((e) => e.id === turma.escolaId);
-      const alunosDaTurma = alunos.filter((a) => a.turmaId === turma.id).length;
-
-      return {
-        id: turma.id,
-        nome: turma.nome,
-        escola: escola?.nome || "-",
-        ano: turma.anoEscolar,
-        tampinhas: totalTampinhas,
-        lacres: totalLacres,
-        total: totalGeral,
-        alunos: alunosDaTurma,
-        mediaPorAluno: alunosDaTurma > 0 ? (totalGeral / alunosDaTurma).toFixed(1) : "0",
-      };
-    })
-    .sort((a, b) => b.total - a.total);
-
-  // Calcular ranking de escolas
-  const rankingEscolas = escolas
-    .map((escola) => {
-      const doacoesEscola = doacoes.filter((d) => d.escolaId === escola.id);
-      const totalTampinhas = doacoesEscola.reduce((sum, d) => sum + d.tampinhas, 0);
-      const totalLacres = doacoesEscola.reduce((sum, d) => sum + d.lacres, 0);
-      const totalGeral = totalTampinhas + totalLacres;
-
-      const turmasDaEscola = turmas.filter((t) => t.escolaId === escola.id).length;
-      const alunosDaEscola = alunos.filter((a) => {
-        const turma = turmas.find((t) => t.id === a.turmaId);
-        return turma?.escolaId === escola.id;
-      }).length;
-
-      return {
-        id: escola.id,
-        nome: escola.nome,
-        tampinhas: totalTampinhas,
-        lacres: totalLacres,
-        total: totalGeral,
-        turmas: turmasDaEscola,
-        alunos: alunosDaEscola,
-      };
-    })
-    .sort((a, b) => b.total - a.total);
-
-  const getMedalIcon = (position: number) => {
-    if (position === 0) return <Crown className="h-6 w-6 text-yellow-500" />;
-    if (position === 1) return <Medal className="h-6 w-6 text-gray-400" />;
-    if (position === 2) return <Medal className="h-6 w-6 text-orange-600" />;
-    return null;
+    try {
+      const alunos = await RankingsService.getRankingAlunos(asGuid(escolaId));
+      setRankingAlunos(alunos ?? []);
+    } catch (error) {
+      console.error("Erro ao carregar ranking de alunos:", error);
+      setRankingAlunos([]);
+    } finally {
+      setLoadingAlunos(false);
+    }
   };
 
-  const getRankingBadge = (position: number) => {
-    if (position === 0) return "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white";
-    if (position === 1) return "bg-gradient-to-r from-gray-300 to-gray-500 text-white";
-    if (position === 2) return "bg-gradient-to-r from-orange-400 to-orange-600 text-white";
-    return "bg-gray-100 text-gray-800";
+  const loadRankingTurmas = async (escolaId?: string) => {
+    setLoadingTurmas(true);
+
+    try {
+      const dados = await RankingsService.getRankingTurmas(asGuid(escolaId));
+      const list = dados ?? [];
+      setRankingTurmas(list);
+
+      if (list.length > 0) {
+        const nextSelectedTurma =
+          selectedTurmaId && list.some((turma) => getTurmaKey(turma) === selectedTurmaId)
+            ? selectedTurmaId
+            : getTurmaKey(list[0]);
+
+        setSelectedTurmaId(nextSelectedTurma);
+      } else {
+        setSelectedTurmaId("");
+      }
+    } catch (error) {
+      console.error("Erro ao carregar ranking de turmas:", error);
+      setRankingTurmas([]);
+      setSelectedTurmaId("");
+    } finally {
+      setLoadingTurmas(false);
+    }
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get("tab");
+
+    if (tab === "turmas") {
+      setActiveTab("turmas");
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    void loadSchoolOptions();
+    void loadRankingSemanal();
+  }, []);
+
+  useEffect(() => {
+    const escolaId =
+      selectedAlunoSchoolId === TODOS_ALUNOS_TAB ? undefined : selectedAlunoSchoolId;
+    void loadRankingAlunos(escolaId);
+  }, [selectedAlunoSchoolId]);
+
+  useEffect(() => {
+    if (activeTab !== "turmas") {
+      return;
+    }
+
+    void loadRankingTurmas(selectedSchoolId);
+  }, [selectedSchoolId, activeTab]);
+
+  const selectedSchoolName =
+    rankingEscolas.find((escola) => getSchoolKey(escola) === selectedSchoolId)?.nome || "Escola";
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Ranking Geral</h1>
-        <p className="text-gray-500 mt-1">Acompanhe o desempenho e as conquistas dos participantes</p>
+        <p className="text-gray-500 mt-1">
+          Acompanhe o desempenho e as conquistas dos participantes
+        </p>
       </div>
 
-      <Tabs defaultValue="alunos" className="w-full">
+      <Tabs value={activeTab} onValueChange={(value) => {
+        setActiveTab(value);
+
+        if (value === "escolas" && rankingEscolas.length === 0 && !loadingEscolas) {
+          void loadSchoolOptions();
+        }
+
+        if (value === "turmas" && rankingTurmas.length === 0 && !loadingTurmas) {
+          void loadRankingTurmas(selectedSchoolId);
+        }
+      }} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="alunos">Alunos</TabsTrigger>
           <TabsTrigger value="turmas">Turmas</TabsTrigger>
           <TabsTrigger value="escolas">Escolas</TabsTrigger>
         </TabsList>
 
-        {/* Ranking de Alunos */}
         <TabsContent value="alunos" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-yellow-500" />
-                Ranking de Alunos
+              <CardTitle className="flex items-center gap-2 text-xl font-bold text-slate-800">
+                <Award className="h-5 w-5 text-purple-600" />
+                Ranking da Semana
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {rankingAlunos.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">
+              {loadingInicial ? (
+                <div className="flex items-center justify-center py-12 text-gray-500">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
+                  <span className="ml-3">Carregando ranking da semana...</span>
+                </div>
+              ) : topAlunosSemana.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
                   <Trophy className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nenhuma doação registrada ainda</p>
+                    <p>Nenhuma conquista registrada na última semana</p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {rankingAlunos.map((aluno, index) => (
-                    <div
-                      key={aluno.id}
-                      className={`flex items-center justify-between p-4 rounded-lg border-2 ${index < 3 ? "border-green-200 bg-green-50" : "border-gray-200"
-                        }`}
-                    >
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className={`flex items-center justify-center w-12 h-12 rounded-full ${getRankingBadge(index)}`}>
-                          {index < 3 ? getMedalIcon(index) : <span className="text-xl font-bold">{index + 1}</span>}
-                        </div>
-                        <div className={`w-10 h-10 rounded-full ${getMedalhaColor(aluno.medalha.cor)} flex items-center justify-center text-xl shadow-lg`}>
-                          {aluno.medalha.icone}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-lg">{aluno.nome}</h3>
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold text-white ${getMedalhaColor(aluno.medalha.cor)}`}>
-                              {aluno.medalha.nome}
-                            </span>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {topAlunosSemana.map((aluno, index) => {
+                    const medalha = getMedalhaByNameOrTotal(aluno.medalha, aluno.total);
+                    const medalhaLabel = aluno.medalha?.trim() ? aluno.medalha : medalha.nome;
+                    const mostrarMedalha = Boolean(aluno.medalha && aluno.medalha.trim());
+
+                    return (
+                      <div
+                        key={`${aluno.nome}-${aluno.posicao}`}
+                        className={`rounded-xl border p-4 ${index === 0
+                          ? "border-yellow-200 bg-yellow-50"
+                          : index === 1
+                            ? "border-slate-200 bg-slate-50"
+                            : "border-orange-200 bg-orange-50"
+                          }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className={`flex h-12 w-12 items-center justify-center rounded-full ${getRankingBadge(index)}`}>
+                            {index < 3 ? getMedalIcon(index) : <span className="text-xl font-bold">{aluno.posicao}</span>}
                           </div>
-                          <p className="text-sm text-gray-500">
-                            {aluno.turma} - {aluno.escola}
-                          </p>
+                          {mostrarMedalha && (
+                            <img
+                              src={getMedalhaImage(aluno.medalha, aluno.total)}
+                              alt={medalhaLabel}
+                              className="h-14 w-14 rounded-full border-2 border-white object-cover shadow-sm"
+                            />
+                          )}
                         </div>
+                        <h3 className="mt-4 text-lg font-bold text-slate-800">{aluno.nome}</h3>
+                        <p className="text-sm text-slate-500">{aluno.turma || "-"}</p>
+                        <p className="mt-3 text-2xl font-black text-slate-800">{aluno.total.toLocaleString("pt-BR")}</p>
+                        <p className="text-xs text-slate-500">
+                          {aluno.quantidadeTampinhas} tampinhas • {aluno.quantidadeLacres} lacres
+                        </p>
                       </div>
-                      <div className="text-right space-y-1">
-                        <div className="text-2xl font-bold text-green-600">{aluno.total.toLocaleString('pt-BR')}</div>
-                        <div className="text-xs text-gray-500">
-                          <span className="text-green-600">{aluno.tampinhas} tampinhas</span>
-                          {" • "}
-                          <span className="text-emerald-600">{aluno.lacres} lacres</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl font-bold text-slate-800">
+                <Users className="h-5 w-5 text-yellow-500" />
+                Ranking dos Alunos
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Tabs
+                value={selectedAlunoSchoolId}
+                onValueChange={setSelectedAlunoSchoolId}
+                className="w-full"
+              >
+                <div className="overflow-x-auto pb-1">
+                  <TabsList className="w-max">
+                    <TabsTrigger value={TODOS_ALUNOS_TAB}>Todos</TabsTrigger>
+                    {escolasOrdenadas.map((escola) => (
+                      <TabsTrigger key={escola.id} value={escola.id}>
+                        {escola.nome}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
+              </Tabs>
+
+              <div className="space-y-3">
+                {loadingAlunos ? (
+                  <div className="flex items-center justify-center py-10 text-gray-500">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
+                    <span className="ml-3">
+                      {selectedAlunoSchoolId === TODOS_ALUNOS_TAB
+                        ? "Carregando ranking de alunos..."
+                        : "Carregando alunos da escola..."}
+                    </span>
+                  </div>
+                ) : rankingAlunos.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">
+                    <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>
+                      {selectedAlunoSchoolId === TODOS_ALUNOS_TAB
+                        ? "Nenhum aluno encontrado"
+                        : "Nenhum aluno encontrado para esta escola"}
+                    </p>
+                  </div>
+                ) : (
+                  rankingAlunos.map((aluno, index) => {
+                    const medalha = getMedalhaByNameOrTotal(aluno.medalha, aluno.total);
+                    const medalhaLabel = aluno.medalha?.trim() ? aluno.medalha : medalha.nome;
+                    const mostrarMedalha = Boolean(aluno.medalha && aluno.medalha.trim());
+
+                    return (
+                      <div
+                        key={`${aluno.nome}-${aluno.posicao}`}
+                        className={`flex items-center justify-between rounded-lg border-2 p-4 ${index < 3 ? "border-green-200 bg-green-50" : "border-gray-200 bg-white"
+                          }`}
+                      >
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className={`flex h-12 w-12 items-center justify-center rounded-full ${getRankingBadge(index)}`}>
+                            {index < 3 ? getMedalIcon(index) : <span className="text-xl font-bold">{aluno.posicao}</span>}
+                          </div>
+                          {mostrarMedalha && (
+                            <img
+                              src={getMedalhaImage(aluno.medalha, aluno.total)}
+                              alt={medalhaLabel}
+                              className="h-14 w-14 rounded-full border border-gray-200 object-cover"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <div className="flex flex-col items-start gap-1">
+                              <div className="flex items-center">
+                                <h3 className="font-semibold text-lg">{aluno.nome}</h3>
+                              </div>
+                              {mostrarMedalha && (
+                                <div className="flex items-center text-lg font-semibold text-green-600">
+                                  <span>{medalhaLabel}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right space-y-1">
+                          <div className="flex flex-row gap-3 items-center justify-end">
+                            <span className="text-2xl font-bold text-green-600">{aluno.total.toLocaleString("pt-BR")}</span>
+                          </div>
+                          <div className="text-xs  text-gray-500">
+                            <span>{aluno.quantidadeTampinhas} tampinhas</span>
+                            {" • "}
+                            <span>{aluno.quantidadeLacres} lacres</span>
+                          </div>
+                          <p className="text-xs text-gray-500">{"Turma: " + aluno.turma + " - " + aluno.escola || "-"}</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        {/* Ranking de Turmas */}
         <TabsContent value="turmas" className="space-y-4">
           <Card>
             <CardHeader>
@@ -231,93 +413,132 @@ export function Rankings() {
                 Ranking de Turmas
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              {rankingTurmas.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">
+            <CardContent className="space-y-4">
+              {loadingEscolas ? (
+                <div className="flex items-center justify-center py-12 text-gray-500">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+                  <span className="ml-3">Carregando turmas...</span>
+                </div>
+              ) : rankingEscolas.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
                   <Award className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nenhuma doação registrada ainda</p>
+                    <p>Nenhuma escola encontrada</p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {rankingTurmas.map((turma, index) => (
-                    <div
-                      key={turma.id}
-                      className={`flex items-center justify-between p-4 rounded-lg border-2 ${index < 3 ? "border-blue-200 bg-blue-50" : "border-gray-200"
-                        }`}
-                    >
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className={`flex items-center justify-center w-12 h-12 rounded-full ${getRankingBadge(index)}`}>
-                          {index < 3 ? getMedalIcon(index) : <span className="text-xl font-bold">{index + 1}</span>}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg">
-                            {turma.nome} - {turma.ano}
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            {turma.escola} • {turma.alunos} alunos
-                          </p>
-                        </div>
+                    <>
+                      <Tabs value={selectedSchoolId || getSchoolKey(rankingEscolas[0])} onValueChange={setSelectedSchoolId} className="w-full">
+                        <TabsList className="flex flex-wrap gap-2">
+                          {rankingEscolas.map((escola) => (
+                            <TabsTrigger
+                              key={getSchoolKey(escola)}
+                              value={getSchoolKey(escola)}
+                              className="min-w-fit"
+                            >
+                              {escola.nome}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                      </Tabs>
+
+                      <div className="space-y-3">
+                        {loadingTurmas ? (
+                          <div className="flex items-center justify-center py-10 text-gray-500">
+                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+                            <span className="ml-3">Carregando turmas da escola...</span>
+                          </div>
+                        ) : rankingTurmas.length === 0 ? (
+                          <div className="text-center py-8 text-gray-400">
+                            <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                            <p>Nenhuma turma cadastrada para esta escola</p>
+                          </div>
+                        ) : (
+                          rankingTurmas.map((turma, index) => {
+                            const turmaId = getTurmaKey(turma);
+                            const isSelected = turmaId === selectedTurmaId;
+
+                            return (
+                              <button
+                                key={turmaId}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedTurmaId(turmaId);
+                                  const turmaNomeEncoded = encodeURIComponent(turma.nome);
+                                  window.open(`/rankings/turma/${turmaId}?nome=${turmaNomeEncoded}`, "_blank", "noopener,noreferrer");
+                                }}
+                                className={`flex w-full items-center justify-between rounded-lg border-2 p-4 text-left transition ${isSelected ? "border-blue-300 bg-blue-50" : index < 3 ? "border-blue-200 bg-blue-50" : "border-gray-200 bg-white"
+                                  }`}
+                              >
+                                <div className="flex items-center gap-4 flex-1">
+                                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${getRankingBadge(index)}`}>
+                                    {index < 3 ? getMedalIcon(index) : <span className="text-xl font-bold">{turma.posicao}</span>}
+                                  </div>
+                                  <div className="flex-1">
+                                    <h3 className="font-semibold text-lg text-blue-600 transition hover:text-blue-700 hover:underline hover:decoration-2 hover:underline-offset-2">
+                                      {turma.nome}
+                                    </h3>
+                                    <p className="text-sm text-gray-500">{turma.escolaNome || selectedSchoolName}</p>
+                                  </div>
+                                </div>
+                                <div className="text-right space-y-1">
+                                  <div className="text-2xl font-bold text-blue-600">{turma.total.toLocaleString("pt-BR")}</div>
+                                  <div className="text-xs text-gray-500">
+                                    <span>{turma.quantidadeTampinhas} tampinhas</span>
+                                    {" • "}
+                                    <span>{turma.quantidadeLacres} lacres</span>
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })
+                        )}
                       </div>
-                      <div className="text-right space-y-1">
-                        <div className="text-2xl font-bold text-blue-600">{turma.total.toLocaleString('pt-BR')}</div>
-                        <div className="text-xs text-gray-500">
-                          <span className="text-green-600">{turma.tampinhas} tampinhas</span>
-                          {" • "}
-                          <span className="text-emerald-600">{turma.lacres} lacres</span>
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          Média: {turma.mediaPorAluno} por aluno
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    </>
               )}
+
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Ranking de Escolas */}
         <TabsContent value="escolas" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 font-bold text-xl text-slate-800">
                 <Trophy className="h-5 w-5 text-purple-500" />
                 Ranking de Escolas
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {rankingEscolas.length === 0 ? (
+              {loadingEscolas ? (
+                <div className="flex items-center justify-center py-12 text-gray-500">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-purple-600 border-t-transparent" />
+                  <span className="ml-3">Carregando ranking das escolas...</span>
+                </div>
+              ) : rankingEscolas.length === 0 ? (
                 <div className="text-center py-12 text-gray-400">
                   <Trophy className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nenhuma doação registrada ainda</p>
+                    <p>Nenhuma escola registrada ainda</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {rankingEscolas.map((escola, index) => (
                     <div
-                      key={escola.id}
-                      className={`flex items-center justify-between p-4 rounded-lg border-2 ${index < 3 ? "border-purple-200 bg-purple-50" : "border-gray-200"
+                      key={getSchoolKey(escola)}
+                      className={`flex items-center justify-between rounded-lg border-2 p-4 ${index < 3 ? "border-purple-200 bg-purple-50" : "border-gray-200 bg-white"
                         }`}
                     >
                       <div className="flex items-center gap-4 flex-1">
-                        <div className={`flex items-center justify-center w-12 h-12 rounded-full ${getRankingBadge(index)}`}>
-                          {index < 3 ? getMedalIcon(index) : <span className="text-xl font-bold">{index + 1}</span>}
+                        <div className={`flex h-12 w-12 items-center justify-center rounded-full ${getRankingBadge(index)}`}>
+                          {index < 3 ? getMedalIcon(index) : <span className="text-xl font-bold">{escola.posicao}</span>}
                         </div>
                         <div className="flex-1">
                           <h3 className="font-semibold text-lg">{escola.nome}</h3>
-                          <p className="text-sm text-gray-500">
-                            {escola.turmas} turmas • {escola.alunos} alunos
-                          </p>
                         </div>
                       </div>
                       <div className="text-right space-y-1">
-                        <div className="text-2xl font-bold text-purple-600">{escola.total.toLocaleString('pt-BR')}</div>
-                        <div className="text-xs text-gray-500">
-                          <span className="text-green-600">{escola.tampinhas} tampinhas</span>
-                          {" • "}
-                          <span className="text-emerald-600">{escola.lacres} lacres</span>
-                        </div>
+                        <div className="text-2xl font-bold text-purple-600">{escola.total.toLocaleString("pt-BR")}</div>
+                        <p className="text-xs text-gray-500">
+                          {escola.quantidadeTampinhas} tampinhas • {escola.quantidadeLacres} lacres
+                        </p>
                       </div>
                     </div>
                   ))}
