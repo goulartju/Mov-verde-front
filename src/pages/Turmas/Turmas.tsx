@@ -289,7 +289,7 @@ export function Turmas() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {alunosDaTurma.map((aluno) => (
+                  {alunosDaTurma.sort((a, b) => a.nome.localeCompare(b.nome)).map((aluno) => (
                   <TableRow key={aluno.id}>
                     <TableCell className="font-medium">{aluno.nome}</TableCell>
                     <TableCell>
