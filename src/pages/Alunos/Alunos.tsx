@@ -13,7 +13,7 @@ import {
 import { Pencil, Trash2, UserPlus } from "lucide-react";
 
 export function Alunos() {
-  const { alunos, handleDelete, handleEdit } = useAlunos();
+  const { alunos, loading, handleDelete, handleEdit } = useAlunos();
   const normalizarNome = (nome: string) =>
     nome
       .normalize("NFD")
@@ -124,7 +124,12 @@ export function Alunos() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {alunos.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-12 text-gray-500">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
+              <span className="ml-3">Carregando alunos...</span>
+            </div>
+          ) : alunos.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <UserPlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Nenhum aluno cadastrado</p>

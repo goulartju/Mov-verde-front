@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
-import { ArrowLeft, Award, Medal, Trophy, Users } from "lucide-react";
+import { ArrowLeft, Award, Users } from "lucide-react";
 import { RankingsService } from "@/services/rankings.service";
 import type { TurmaAlunoRankingItem } from "@/types/ranking-types";
 import { Medalhas } from "@/types/ranking-types";

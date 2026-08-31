@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 interface AlunosContextType {
   alunos: Aluno[];
+  loading: boolean;
   editingId: string | null;
   openModal: boolean;
   alunoSelected: Aluno | null;
@@ -27,36 +28,48 @@ export const useAlunos = () => {
 
 export const AlunosProvider = ({ children }: { children: ReactNode }) => {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [alunoSelected, setAlunoSelected] = useState<Aluno | null>(null);
 
   const fetchAlunos = async () => {
+    setLoading(true);
+
     try {
       const data = await AlunosService.getAll();
       setAlunos(Array.isArray(data) ? data : []);
     } catch (error) {
       toast.error("Erro ao carregar alunos. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const addAluno = async (aluno: Omit<Aluno, 'id'>) => {
+    setLoading(true);
+
     try {
       const newAluno = await AlunosService.create(aluno);
       setAlunos(prev => [...prev, newAluno]);
     } catch (error) {
       toast.error("Erro ao criar aluno. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateAluno = async (id: string, aluno: Partial<Aluno>) => {
+    setLoading(true);
+
     try {
       const updatedAluno = await AlunosService.update(id, aluno);
       setAlunos(prev => prev.map(a => a.id === id ? { ...a, ...updatedAluno } : a));
       setAlunoSelected(alunos.find(a => a.id === id) || null);
     } catch (error) {
       toast.error("Erro ao atualizar aluno. Tente novamente.");
-
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,7 +99,7 @@ export const AlunosProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AlunosContext.Provider value={{ alunos, addAluno, updateAluno, editingId, setEditingId, openModal, setOpenModal, alunoSelected, setAlunoSelected, handleEdit, handleDelete }}>
+    <AlunosContext.Provider value={{ alunos, loading, addAluno, updateAluno, editingId, setEditingId, openModal, setOpenModal, alunoSelected, setAlunoSelected, handleEdit, handleDelete }}>
       {children}
     </AlunosContext.Provider>
   );

@@ -18,9 +18,11 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAlunos } from "@/pages/Alunos/AlunosContext";
+import { useEscolas } from "@/pages/Escolas/EscolasContext";
 import { useTurmas } from "@/pages/Turmas/TurmasContext";
+import { MatriculasService } from "@/services/matriculas.service";
 import type { Aluno } from "@/types/aluno-types";
 
 const ModalAluno = () => {
@@ -34,35 +36,80 @@ const ModalAluno = () => {
     alunoSelected,
   } = useAlunos();
   const { turmas } = useTurmas();
+  const { escolas } = useEscolas();
 
   const [formData, setFormData] = useState({
     nome: "",
+    escolaId: "",
     turmaId: "",
     ativo: true,
   });
 
-  // Atualiza formData ao abrir modal para editar ou criar
+  const turmasFiltradas = useMemo(
+    () =>
+      [...turmas]
+        .filter(
+          (turma) =>
+            turma.ativo && (!formData.escolaId || turma.escolaId === formData.escolaId),
+        )
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
+    [formData.escolaId, turmas],
+  );
+
   useEffect(() => {
-    if (openModal) {
-      if (editingId) {
-        setFormData({
-          nome: alunoSelected?.nome || "",
-          turmaId: alunoSelected?.turmaId || "",
-          ativo: alunoSelected?.ativo ?? true,
-        });
-      } else {
+    if (!openModal) return;
+
+    const carregarDadosEdicao = async () => {
+      if (!editingId || !alunoSelected) {
         setFormData({
           nome: "",
+          escolaId: "",
           turmaId: "",
           ativo: true,
         });
+        return;
       }
-    }
-  }, [openModal, editingId]);
+
+      try {
+        const matriculas = await MatriculasService.getAll();
+        const matriculaAtual =
+          matriculas.find(
+            (matricula) =>
+              matricula.alunoId === alunoSelected.id && matricula.ativo !== false,
+          ) ??
+          matriculas.find((matricula) => matricula.alunoId === alunoSelected.id) ??
+          null;
+
+        const turmaIdAtual = matriculaAtual?.turmaId || alunoSelected.turmaId || "";
+        const turmaDoAluno = turmas.find((turma) => turma.id === turmaIdAtual);
+
+        setFormData({
+          nome: alunoSelected.nome || "",
+          escolaId: turmaDoAluno?.escolaId || "",
+          turmaId: turmaIdAtual,
+          ativo: alunoSelected.ativo ?? true,
+        });
+      } catch (error) {
+        console.error("Erro ao carregar matrícula do aluno:", error);
+        const turmaIdAtual = alunoSelected.turmaId || "";
+        const turmaDoAluno = turmas.find((turma) => turma.id === turmaIdAtual);
+
+        setFormData({
+          nome: alunoSelected.nome || "",
+          escolaId: turmaDoAluno?.escolaId || "",
+          turmaId: turmaIdAtual,
+          ativo: alunoSelected.ativo ?? true,
+        });
+      }
+    };
+
+    void carregarDadosEdicao();
+  }, [openModal, editingId, alunoSelected, turmas]);
 
   const resetForm = () => {
     setFormData({
       nome: "",
+      escolaId: "",
       turmaId: "",
       ativo: true,
     });
@@ -70,11 +117,11 @@ const ModalAluno = () => {
     setOpenModal(false);
   };
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!formData.nome || !formData.turmaId) {
-      toast.error("Preencha todos os campos obrigatórios");
+    if (!formData.nome || !formData.escolaId || !formData.turmaId) {
+      toast.error("Preencha escola e turma antes de salvar");
       return;
     }
 
@@ -84,15 +131,20 @@ const ModalAluno = () => {
       ativo: formData.ativo,
     };
 
-    if (editingId) {
-      updateAluno(editingId, payload);
-      toast.success("Aluno atualizado com sucesso!");
-    } else {
-      addAluno(payload);
-      toast.success("Aluno criado com sucesso!");
-    }
+    try {
+      if (editingId) {
+        await updateAluno(editingId, payload);
+        toast.success("Aluno atualizado com sucesso!");
+      } else {
+        await addAluno(payload);
+        toast.success("Aluno criado com sucesso!");
+      }
 
-    resetForm();
+      resetForm();
+    } catch (error) {
+      console.error("Erro ao salvar aluno:", error);
+      toast.error("Erro ao salvar aluno. Tente novamente.");
+    }
   };
 
   return (
@@ -130,24 +182,54 @@ const ModalAluno = () => {
             />
           </div>
           <div>
+            <Label htmlFor="escola">
+              Escola <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              value={formData.escolaId}
+              onValueChange={(escolaId) =>
+                setFormData({ ...formData, escolaId, turmaId: "" })
+              }
+            >
+              <SelectTrigger id="escola">
+                <SelectValue placeholder="Selecione a escola" />
+              </SelectTrigger>
+              <SelectContent>
+                {escolas
+                  .filter((escola) => escola.ativo)
+                  .map((escola) => (
+                    <SelectItem key={escola.id} value={escola.id}>
+                      {escola.nome}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
             <Label htmlFor="turma">
               Turma <span className="text-red-500">*</span>
             </Label>
             <Select
               value={formData.turmaId}
               onValueChange={(turmaId) => setFormData({ ...formData, turmaId })}
+              disabled={!formData.escolaId || turmasFiltradas.length === 0}
             >
               <SelectTrigger id="turma">
-                <SelectValue placeholder="Selecione a turma" />
+                <SelectValue
+                  placeholder={
+                    formData.escolaId
+                      ? "Selecione a turma"
+                      : "Primeiro selecione a escola"
+                  }
+                />
               </SelectTrigger>
               <SelectContent>
-                {turmas
-                  .filter((turma) => turma.ativo)
-                  .map((turma) => (
-                    <SelectItem key={turma.id} value={turma.id}>
-                      {turma.nome} - {turma.anoEscolar}
-                    </SelectItem>
-                  ))}
+                {turmasFiltradas.map((turma) => (
+                  <SelectItem key={turma.id} value={turma.id}>
+                    {turma.nome} - {turma.anoEscolar}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
