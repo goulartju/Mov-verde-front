@@ -42,7 +42,7 @@ export const DoacoesProvider = ({ children }: { children: ReactNode }) => {
         ? doacoesFiltradas
         : await DoacoesService.createByFilter(filter);
 
-      const normalizedDoacoes = doacoes.map(normalizeDoacao);
+      const normalizedDoacoes = doacoes.map(normalizeDoacao).sort((a, b) => a.nomeAluno.localeCompare(b.nomeAluno, "pt-BR"));
       setDoacoes(normalizedDoacoes);
       return normalizedDoacoes;
     } catch {
