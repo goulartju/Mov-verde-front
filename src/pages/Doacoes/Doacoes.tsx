@@ -44,8 +44,8 @@ export function Doacoes() {
   const [selectedEscola, setSelectedEscola] = useState("");
   const [selectedTurma, setSelectedTurma] = useState("");
   const [selectedCalendario, setSelectedCalendario] = useState("");
-  const [selectedData, setSelectedData] = useState(
-    new Date().toISOString().split("T")[0],
+  const [selectedData, setSelectedData] = useState(() =>
+    new Date().toLocaleDateString("sv-SE"),
   );
   const [turmaDoacoes, setTurmaDoacoes] = useState<Map<string, DoacaoRegistro>>(
     new Map(),
@@ -135,7 +135,7 @@ export function Doacoes() {
     const payload: DoacoesUpdatePayload = {
       escolaId: selectedEscola,
       calendarioId: selectedCalendario,
-      data: `${selectedData}T00:00:00.000Z`,
+      data: selectedData,
       doacoes: doacoes.map((doacaoExistente) => {
         const matriculaId = doacaoExistente.matriculaId;
         const registro = turmaDoacoes.get(matriculaId);

@@ -17,7 +17,6 @@ import {
 import {
   Bar,
   BarChart,
-  CartesianGrid,
   Cell,
   Legend,
   Pie,
@@ -211,7 +210,6 @@ export function Dashboard() {
                         data={doacoesPorEscola}
                         margin={{ top: 20, right: 20, left: 10, bottom: 90 }}
                       >
-                        <CartesianGrid strokeDasharray="4 4" />
                         <XAxis
                           dataKey="nome"
                           interval={0}
