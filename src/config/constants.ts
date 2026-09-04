@@ -6,6 +6,7 @@ const config = {
   STORAGE: {
     ACCESS_TOKEN: 'access_token',
     REFRESH_TOKEN: 'refresh_token',
+    EXPIRES_AT: 'expires_at',
     USER_EMAIL: 'user_email',
     USER_FULLNAME: 'user_fullname',
     USER_PERMISSAO: 'user_permissao',

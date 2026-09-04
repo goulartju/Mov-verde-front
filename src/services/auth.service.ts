@@ -1,5 +1,6 @@
 import config from '@/config/constants';
 import HttpRequest from '@/config/requests';
+import { refreshTokens } from '@/services/token-refresh';
 
 type GetTokenParams = {
   code?: string;
@@ -83,6 +84,12 @@ const persistSession = (data: LoginResponse) => {
 
   window.localStorage.setItem(config.STORAGE.ACCESS_TOKEN, data.accessToken);
   window.localStorage.setItem(config.STORAGE.REFRESH_TOKEN, data.refreshToken);
+  if (typeof data.expiresIn === 'number' && Number.isFinite(data.expiresIn) && data.expiresIn > 0) {
+    window.localStorage.setItem(
+      config.STORAGE.EXPIRES_AT,
+      String(Date.now() + data.expiresIn * 1000),
+    );
+  }
   if (payload?.email || data.usuario?.email)
     window.localStorage.setItem(
       config.STORAGE.USER_EMAIL,
@@ -175,22 +182,7 @@ const AuthService = {
     return window.localStorage.getItem(config.STORAGE.USER_EMAIL) ?? undefined;
   },
 
-  refreshToken: async (): Promise<string> => {
-    const refreshToken = window.localStorage.getItem(config.STORAGE.REFRESH_TOKEN);
-    if (!refreshToken) throw new Error('Refresh token not found');
-
-    const data = await HttpRequest.post<GetTokenResponse>({
-      url: '/Auth/refresh-token',
-      body: { refresh_token: refreshToken },
-    });
-
-    window.localStorage.setItem(config.STORAGE.ACCESS_TOKEN, data.access_token);
-    window.localStorage.setItem(config.STORAGE.REFRESH_TOKEN, data.refresh_token);
-    window.localStorage.setItem(config.STORAGE.USER_EMAIL, data.email);
-    window.localStorage.setItem(config.STORAGE.USER_FULLNAME, data.user);
-
-    return data.access_token;
-  },
+  refreshToken: (): Promise<string> => refreshTokens(),
 
   getPermissao: (): number | null => readPermissao(),
 

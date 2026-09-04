@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config from './constants';
+import { refreshTokens } from '@/services/token-refresh';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -55,7 +56,7 @@ api.interceptors.response.use(
     }
 
     // Refresh endpoint itself returned 401 → give up
-    if (originalRequest?.url?.includes('/login/token/refresh')) {
+    if (originalRequest?.url?.includes('/Auth/refresh-token')) {
       Object.values(config.STORAGE).forEach((key) => localStorage.removeItem(key));
       window.location.href = '/login';
       return Promise.reject(error);
@@ -77,30 +78,13 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const refreshToken = localStorage.getItem(config.STORAGE.REFRESH_TOKEN);
-      if (!refreshToken) throw new Error('Refresh token not found');
+      // Renova e repete a requisição original sem derrubar a tela.
+      const token = await refreshTokens();
 
-      // Use raw axios to avoid interceptor loop
-      const { data } = await axios.post<{
-        access_token: string;
-        refresh_token: string;
-        email: string;
-        user: string;
-      }>(
-        `${config.API.AUTHORIZATION_URL}/login/token/refresh`,
-        { refresh_token: refreshToken },
-        { headers: { 'Content-Type': 'application/json' } },
-      );
-
-      localStorage.setItem(config.STORAGE.ACCESS_TOKEN, data.access_token);
-      localStorage.setItem(config.STORAGE.REFRESH_TOKEN, data.refresh_token);
-      localStorage.setItem(config.STORAGE.USER_EMAIL, data.email);
-      localStorage.setItem(config.STORAGE.USER_FULLNAME, data.user);
-
-      processQueue(null, data.access_token);
+      processQueue(null, token);
 
       if (originalRequest?.headers) {
-        originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+        originalRequest.headers.Authorization = `Bearer ${token}`;
       }
       return api(originalRequest!);
     } catch (refreshError) {
