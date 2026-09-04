@@ -9,9 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useUsuarios } from "./UsuariosContext";
-import { parseStringToDate } from "@/lib/datetime-utils";
-import DatePicker from "@/components/ui/date-picker";
-import { format } from "date-fns";
 import { UsuarioPermissao } from "@/types/usuario-types";
 
 const ModalUsuario = () => {
@@ -21,7 +18,6 @@ const ModalUsuario = () => {
 
   const [formData, setFormData] = useState({
     nome: "",
-    dataNascimento: "",
     email: "",
     permissao: 0,
     cargo: "",
@@ -31,7 +27,6 @@ const ModalUsuario = () => {
   const resetForm = () => {
     setFormData({
       nome: "",
-      dataNascimento: "",
       email: "",
       permissao: 0,
       cargo: "",
@@ -51,8 +46,7 @@ const ModalUsuario = () => {
     const errors: string[] = [];
 
     if (!formData.nome) errors.push("Nome");
-    if (!formData.dataNascimento || formData.dataNascimento.trim() === "") errors.push("Data de nascimento");
-    if (!formData.permissao) errors.push("Permissão");
+    if (formData.permissao == null) errors.push("Permissão");
     if (!formData.cargo) errors.push("Cargo");
 
     if (errors.length > 0) {
@@ -75,8 +69,7 @@ const ModalUsuario = () => {
       if (editingId && usuarioSelected) {
         setFormData({
           nome: usuarioSelected.nome || "",
-          dataNascimento: usuarioSelected.dataNascimento || "",
-          permissao: usuarioSelected.permissao || 0,
+          permissao: usuarioSelected.permissao ?? 0,
           cargo: usuarioSelected.cargo || "",
           ativo: usuarioSelected.ativo ?? true,
           email: usuarioSelected.email || "",
@@ -84,7 +77,6 @@ const ModalUsuario = () => {
       } else {
         setFormData({
           nome: "",
-          dataNascimento: "",
           permissao: 0,
           cargo: "",
           ativo: true,
@@ -137,16 +129,6 @@ const ModalUsuario = () => {
             />
           </div>
           <div className="flex flex-row space-y-4 gap-4">
-            <div className="flex-1 flex-col">
-              <Label>
-                Data de nascimento <span className="text-red-500">*</span>
-              </Label>
-              <DatePicker
-                value={parseStringToDate(formData.dataNascimento)}
-                label=""
-                onChange={(date: Date | undefined) => setFormData({ ...formData, dataNascimento: date ? format(date, 'yyyy-MM-dd') : '' })}
-              />
-            </div>
             <div className="flex-1 flex-col">
               <Label htmlFor="turno">Permissão *</Label>
               <Select

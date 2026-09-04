@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2, Calendar as CalendarIcon } from "lucide-react";
 import ModalUsuario from "./modal-usuario";
-import { UsuarioPermissao } from "@/types/usuario-types";
+import { getPermissaoLabel } from "@/types/usuario-types";
 import { useEffect } from "react";
 
 export function Administrativo() {
@@ -48,8 +48,7 @@ export function Administrativo() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Data de nascimento</TableHead>
+                    <TableHead>Nome</TableHead>
                   <TableHead>Permissão</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
@@ -60,13 +59,8 @@ export function Administrativo() {
                   usuarios.map((usuario) => (
                     <TableRow key={usuario.id}>
                       <TableCell className="font-medium">{usuario.nome}</TableCell>
-                      <TableCell>
-                        {new Date(usuario.dataNascimento).toLocaleDateString('pt-BR')}
-                      </TableCell>
                       <TableCell className="font-medium">
-                        {Object.entries(UsuarioPermissao)
-                          .filter((key) => isNaN(Number(key)))
-                          .find(([, value]) => value == usuario.permissao)?.[0]}
+                        {getPermissaoLabel(usuario.permissao)}
                       </TableCell>
                       <TableCell>
                         <span

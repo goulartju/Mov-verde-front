@@ -32,9 +32,12 @@ import {
 import ModalTurma from "./modal-turma";
 import { AnoSerie, Turno } from "@/types/turma-types";
 import { useEffect, useMemo, useState } from "react";
+import { CanWrite } from "@/auth/Can";
+import { usePermissao } from "@/hooks/usePermissao";
 
 export function Turmas() {
   const { turmas, handleDelete, handleEdit } = useTurmas();
+  const { canWrite } = usePermissao();
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [matriculas, setMatriculas] = useState<Matricula[]>([]);
   const [turmaVisualizada, setTurmaVisualizada] = useState<Turma | null>(null);
@@ -106,10 +109,12 @@ export function Turmas() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Turmas</h1>
-          <p className="text-gray-500 mt-1">Gerencie as turmas das escolas</p>
+          <p className="text-gray-500 mt-1">{canWrite ? "Gerencie as turmas das escolas" : "Visualize as turmas das escolas"}</p>
         </div>
         <div>
-          <ModalTurma />
+          <CanWrite>
+            <ModalTurma />
+          </CanWrite>
         </div>
       </div>
 
@@ -162,9 +167,11 @@ export function Turmas() {
             <div className="text-center py-12 text-gray-400">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Nenhuma turma cadastrada</p>
-              <p className="text-sm mt-2">
-                Clique em "Nova Turma" para começar
-              </p>
+              {canWrite && (
+                <p className="text-sm mt-2">
+                  Clique em "Nova Turma" para começar
+                </p>
+              )}
             </div>
           ) : escolasOrdenadas.length === 0 ? (
             <p className="py-6 text-center text-gray-500">
@@ -221,13 +228,15 @@ export function Turmas() {
                           <TableCell>{turma.representanteNome}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEdit(turma)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
+                              <CanWrite>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEdit(turma)}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </CanWrite>
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -244,14 +253,16 @@ export function Turmas() {
                         >
                           <ClipboardPlus className="h-4 w-4" />
                         </Button> */}
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDelete(turma.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              <CanWrite>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDelete(turma.id)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </CanWrite>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -284,21 +295,13 @@ export function Turmas() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Data de Nascimento</TableHead>
+                    <TableHead>Nome</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                   {alunosDaTurma.sort((a, b) => a.nome.localeCompare(b.nome)).map((aluno) => (
                   <TableRow key={aluno.id}>
-                    <TableCell className="font-medium">{aluno.nome}</TableCell>
-                    <TableCell>
-                      {aluno.dataNascimento
-                        ? new Date(aluno.dataNascimento).toLocaleDateString(
-                            "pt-BR",
-                          )
-                        : "-"}
-                    </TableCell>
+                      <TableCell className="font-medium">{aluno.nome}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

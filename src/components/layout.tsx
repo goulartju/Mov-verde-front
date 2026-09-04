@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { AuthService } from "@/services/auth.service";
+import { usePermissao } from "@/hooks/usePermissao";
 import { toast } from "sonner";
 
 const Layout: React.FC = () => {
@@ -27,6 +28,8 @@ const Layout: React.FC = () => {
     navigate("/login");
   };
 
+  const { isAdmin } = usePermissao();
+
   const menuItems = [
     { path: "/", label: "Dashboard", icon: LayoutDashboard },
     { path: "/escolas", label: "Escolas", icon: School },
@@ -35,7 +38,10 @@ const Layout: React.FC = () => {
     { path: "/alunos", label: "Alunos", icon: UserPlus },
     { path: "/doacoes", label: "Doações", icon: Gift },
     { path: "/rankings", label: "Rankings", icon: Trophy },
-    { path: "/administrativo", label: "Administrativo", icon: SquarePen },
+    // Apenas Administrador enxerga a página de Administrativo
+    ...(isAdmin
+      ? [{ path: "/administrativo", label: "Administrativo", icon: SquarePen }]
+      : []),
 
   ];
 
@@ -93,6 +99,11 @@ const Layout: React.FC = () => {
 
         {/* Footer */}
         <div className={`p-4 border-t border-green-500 ${sidebarOpen ? "space-y-3" : ""}`}>
+          {sidebarOpen && (
+            <div className="rounded-lg bg-green-600/60 px-3 py-2 text-xs text-green-50">
+              <p className="font-semibold">{AuthService.getUserFullname() ?? 'Usuário'}</p>
+            </div>
+          )}
           <button
             onClick={handleLogout}
             className={`flex items-center gap-3 w-full p-3 rounded-lg text-green-50 hover:bg-red-400/60 hover:text-white transition-colors ${!sidebarOpen && "justify-center"}`}

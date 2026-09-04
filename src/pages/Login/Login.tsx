@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { GoogleLogin } from '@react-oauth/google';
 import { Leaf, Mail, Lock, Recycle } from 'lucide-react';
 import { AuthService } from '@/services/auth.service';
+import config from '@/config/constants';
 import axios from 'axios';
 
 const Login = () => {
@@ -9,6 +11,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,6 +40,32 @@ const Login = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: { credential?: string }) => {
+    if (!credentialResponse.credential) {
+      setError('Não foi possível obter a credencial do Google');
+      return;
+    }
+
+    setError(null);
+    setGoogleLoading(true);
+    try {
+      await AuthService.loginWithGoogle({
+        idToken: credentialResponse.credential,
+        clientId: config.API.GOOGLE_CLIENT_ID,
+      });
+      navigate('/');
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const message = err.response?.data?.message ?? err.response?.data ?? err.message;
+        setError(typeof message === 'string' ? message : 'Não foi possível entrar com o Google');
+      } else {
+        setError('Não foi possível entrar com o Google');
+      }
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -108,6 +137,29 @@ const Login = () => {
         >
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
+        <div className="flex items-center gap-3 text-xs text-gray-400">
+          <span className="h-px flex-1 bg-gray-200" />
+          <span>ou</span>
+          <span className="h-px flex-1 bg-gray-200" />
+        </div>
+        {config.API.GOOGLE_CLIENT_ID ? (
+          <div
+            className={`flex justify-center ${googleLoading ? 'pointer-events-none opacity-60' : ''}`}
+            aria-busy={googleLoading}
+          >
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Não foi possível entrar com o Google')}
+              useOneTap={false}
+              theme="outline"
+              size="large"
+              text="signin_with"
+              width="100%"
+              auto_select={false}
+              cancel_on_tap_outside
+            />
+          </div>
+        ) : null}
         {error && (
           <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-600 text-center">
             {error}

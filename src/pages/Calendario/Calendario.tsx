@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2, Calendar as CalendarIcon } from "lucide-react";
 import ModalCalendario from "./modal-calendario";
+import { CanWrite } from "@/auth/Can";
+import { usePermissao } from "@/hooks/usePermissao";
 
 const Calendario = () => {
   const { calendarios, handleEdit, handleDelete } = useCalendarios();
+  const { canWrite } = usePermissao();
 
   return (
     <div className="space-y-6">
@@ -14,9 +17,11 @@ const Calendario = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Calendário</h1>
-          <p className="text-gray-500 mt-1">Gerencie os períodos de arrecadação</p>
+          <p className="text-gray-500 mt-1">{canWrite ? "Gerencie os períodos de arrecadação" : "Visualize os períodos de arrecadação"}</p>
         </div>
-        <ModalCalendario />
+        <CanWrite>
+          <ModalCalendario />
+        </CanWrite>
       </div>
 
       {/* Table */}
@@ -32,7 +37,7 @@ const Calendario = () => {
             <div className="text-center py-12 text-gray-400">
               <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Nenhum calendário cadastrado</p>
-              <p className="text-sm mt-2">Clique em "Novo Calendário" para começar</p>
+              {canWrite && <p className="text-sm mt-2">Clique em "Novo Calendário" para começar</p>}
             </div>
           ) : (
             <Table>
@@ -42,7 +47,9 @@ const Calendario = () => {
                   <TableHead>Data Início</TableHead>
                   <TableHead>Data Término</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                    <CanWrite>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </CanWrite>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -65,25 +72,27 @@ const Calendario = () => {
                         {calendario.ativo ? "Ativo" : "Inativo"}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(calendario)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(calendario.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    <CanWrite>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(calendario)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(calendario.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </CanWrite>
                   </TableRow>
                 ))}
               </TableBody>

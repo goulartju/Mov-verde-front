@@ -25,6 +25,13 @@ const PrivateRoute: React.FC = () => {
   return token ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
+const AdminRoute: React.FC = () => {
+  const raw = localStorage.getItem(config.STORAGE.USER_PERMISSAO);
+  const permissao = raw != null && raw !== '' ? Number(raw) : null;
+  if (permissao === 2) return <Outlet />;
+  return <Navigate to="/" replace />;
+};
+
 export const Routes: React.FC = () => {
   const router = createBrowserRouter([
     {
@@ -135,11 +142,17 @@ export const Routes: React.FC = () => {
             },
             {
               path: 'administrativo',
-              element: (
-                <UsuariosProvider>
-                  <Administrativo />
-                </UsuariosProvider>
-              ),
+              Component: AdminRoute,
+              children: [
+                {
+                  index: true,
+                  element: (
+                    <UsuariosProvider>
+                      <Administrativo />
+                    </UsuariosProvider>
+                  ),
+                },
+              ],
             },
           ],
         },

@@ -3,6 +3,5 @@ export interface Aluno {
   matriculaId?: string;
   turmaId: string;
   nome: string;
-  dataNascimento?: string;
   ativo: boolean;
 }

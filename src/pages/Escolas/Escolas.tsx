@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2, School } from "lucide-react";
 import ModalEscola from "./modal-escola";
+import { CanWrite } from "@/auth/Can";
+import { usePermissao } from "@/hooks/usePermissao";
 
 const Escolas = () => {
   const { escolas, handleEdit, handleDelete } = useEscolas();
+  const { canWrite } = usePermissao();
 
   return (
     <div className="space-y-6">
@@ -14,9 +17,11 @@ const Escolas = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Escolas</h1>
-          <p className="text-gray-500 mt-1">Gerencie as escolas participantes</p>
+          <p className="text-gray-500 mt-1">{canWrite ? "Gerencie as escolas participantes" : "Visualize as escolas participantes"}</p>
         </div>
-        <ModalEscola />
+        <CanWrite>
+          <ModalEscola />
+        </CanWrite>
       </div>
 
       {/* Table */}
@@ -32,7 +37,7 @@ const Escolas = () => {
             <div className="text-center py-12 text-gray-400">
               <School className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Nenhuma escola cadastrada</p>
-              <p className="text-sm mt-2">Clique em "Nova Escola" para começar</p>
+              {canWrite && <p className="text-sm mt-2">Clique em "Nova Escola" para começar</p>}
             </div>
           ) : (
             <Table>
@@ -42,7 +47,9 @@ const Escolas = () => {
                   <TableHead>Município</TableHead>
                   <TableHead>Diretor(a)</TableHead>
                   <TableHead>Contato</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                    <CanWrite>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </CanWrite>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -52,27 +59,29 @@ const Escolas = () => {
                     <TableCell>{escola.municipio}</TableCell>
                     <TableCell>{escola.diretor || "--"}</TableCell>
                     <TableCell>{escola.contato || "--"}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            handleEdit(escola);
-                          }}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(escola.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    <CanWrite>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              handleEdit(escola);
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(escola.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </CanWrite>
                   </TableRow>
                 ))}
               </TableBody>

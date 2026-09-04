@@ -23,6 +23,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Gift, Check, Search, X } from "lucide-react";
+import { CanWrite } from "@/auth/Can";
+import { usePermissao } from "@/hooks/usePermissao";
 import { toast } from "sonner";
 import type {
   DoacoesFilter,
@@ -41,6 +43,7 @@ export function Doacoes() {
 
   const { doacoes, setFiltroDoacoes, buscarDoacoes, updateDoacoes } =
     useDoacoes();
+  const { canWrite } = usePermissao();
   const [selectedEscola, setSelectedEscola] = useState("");
   const [selectedTurma, setSelectedTurma] = useState("");
   const [selectedCalendario, setSelectedCalendario] = useState("");
@@ -221,7 +224,7 @@ export function Doacoes() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Doacoes</h1>
-        <p className="text-gray-500 mt-1">Registre as doacoes da turma</p>
+        <p className="text-gray-500 mt-1">{canWrite ? "Registre as doações da turma" : "Visualize as doações da turma"}</p>
       </div>
 
       <Card>
@@ -324,30 +327,32 @@ export function Doacoes() {
                 <Gift className="h-5 w-5" />
                 Alunos da Turma
               </CardTitle>
-              {!modoEdicao ? (
-                <Button
-                  className="bg-green-600 hover:bg-green-700"
-                  onClick={handleIniciarRegistro}
-                  disabled={doacoes.length === 0}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Editar Doacoes
-                </Button>
-              ) : (
-                <div className="flex gap-2">
+              <CanWrite>
+                {!modoEdicao ? (
                   <Button
                     className="bg-green-600 hover:bg-green-700"
-                    onClick={handleSalvarTodas}
+                    onClick={handleIniciarRegistro}
+                    disabled={doacoes.length === 0}
                   >
-                    <Check className="h-4 w-4 mr-2" />
-                    Salvar Todas
+                    <Plus className="h-4 w-4 mr-2" />
+                    Editar Doacoes
                   </Button>
-                  <Button variant="outline" onClick={handleCancelar}>
-                    <X className="h-4 w-4 mr-2" />
-                    Cancelar
-                  </Button>
-                </div>
-              )}
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      className="bg-green-600 hover:bg-green-700"
+                      onClick={handleSalvarTodas}
+                    >
+                      <Check className="h-4 w-4 mr-2" />
+                      Salvar Todas
+                    </Button>
+                    <Button variant="outline" onClick={handleCancelar}>
+                      <X className="h-4 w-4 mr-2" />
+                      Cancelar
+                    </Button>
+                  </div>
+                )}
+              </CanWrite>
             </div>
           </CardHeader>
           <CardContent>
