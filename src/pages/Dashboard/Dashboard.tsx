@@ -12,12 +12,15 @@ import {
   Gift,
   TrendingUp,
   Award,
-  Trophy
+  Trophy,
+  History,
+  Database
 } from "lucide-react";
 import {
   Bar,
   BarChart,
   Cell,
+  LabelList,
   Legend,
   Pie,
   PieChart,
@@ -28,6 +31,15 @@ import {
 } from "recharts";
 import { Medalhas } from "@/types/ranking-types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Anos anteriores não estão no banco: totais fixos (tampinhas + lacres).
+// Para atualizar, edite apenas estes números.
+const HISTORICO_ARRECADACAO = [
+  { ano: "2024", tampinhas: 21947, lacres: 8451 },
+  { ano: "2025", tampinhas: 105208, lacres: 35345 },
+];
+
+const ANO_ATUAL = "2026";
 
 
 export function Dashboard() {
@@ -92,6 +104,33 @@ export function Dashboard() {
     { nome: "Lacres", valor: totalLacres },
   ];
 
+  // 2024 e 2025 hardcoded + ano atual (2026) vindo do banco (total acumulado).
+  const comparativoAnual = useMemo(
+    () => [
+      ...HISTORICO_ARRECADACAO.map((h) => ({
+        ...h,
+        total: h.tampinhas + h.lacres,
+        origem: "histórico" as const,
+      })),
+      {
+        ano: ANO_ATUAL,
+        tampinhas: totalTampinhas,
+        lacres: totalLacres,
+        total: totalDoacoes,
+        origem: "atual" as const,
+      },
+    ],
+    [totalTampinhas, totalLacres, totalDoacoes],
+  );
+
+  const variacaoAnual = (indice: number): number | null => {
+    if (indice === 0) return null;
+    const anterior = comparativoAnual[indice - 1].total;
+    const atual = comparativoAnual[indice].total;
+    if (!anterior) return null;
+    return ((atual - anterior) / anterior) * 100;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -102,61 +141,61 @@ export function Dashboard() {
         </p>
       </div>
 
-      <Tabs defaultValue="estatisticas" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="estatisticas">Estatísticas</TabsTrigger>
-          <TabsTrigger value="sistema-medalhas">
+      <Tabs defaultValue="estatisticas" className="w-full gap-8 mt-4">
+        <TabsList className="grid w-full grid-cols-3 text-md">
+          <TabsTrigger value="estatisticas" className="text-md">Estatísticas</TabsTrigger>
+          <TabsTrigger value="sistema-medalhas" className="text-md">
             Sistema de Conquistas
           </TabsTrigger>
         </TabsList>
 
         {/* Aba de Estatísticas */}
-        <TabsContent value="estatisticas" className="space-y-4">
+        <TabsContent value="estatisticas" className="space-y-4 gap-6">
           {/* Cards de Estatísticas */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg font-bold text-slate-800">Escolas</CardTitle>
-                <School className="h-4 w-4 text-green-600" />
+                <CardTitle className="text-xl font-bold text-slate-800">Escolas</CardTitle>
+                <School className="h-5 w-5 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{escolas.length}</div>
+                <div className="text-5xl font-bold">{escolas.length}</div>
                 <p className="text-xs text-gray-500 mt-1">Total cadastradas</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg font-bold text-slate-800">Turmas</CardTitle>
-                <Users className="h-4 w-4 text-blue-600" />
+                <CardTitle className="text-xl font-bold text-slate-800">Turmas</CardTitle>
+                <Users className="h-5 w-5 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{turmas.length}</div>
+                <div className="text-5xl font-bold">{turmas.length}</div>
                 <p className="text-xs text-gray-500 mt-1">Total cadastradas</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg font-bold text-slate-800">Alunos</CardTitle>
-                <UserPlus className="h-4 w-4 text-purple-600" />
+                <CardTitle className="text-2xl font-bold text-slate-800">Alunos</CardTitle>
+                <UserPlus className="h-5 w-5 text-purple-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{alunos.length}</div>
+                <div className="text-5xl font-bold">{alunos.length}</div>
                 <p className="text-xs text-gray-500 mt-1">Total cadastrados</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg text-red-500 font-bold">Doações</CardTitle>
-                <Gift className="h-4 w-4 text-orange-600" />
+                <CardTitle className="text-2xl text-red-500 font-bold">Doações</CardTitle>
+                <Gift className="h-5 w-5 text-orange-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-4xl text-red-500 font-bold">
+                <div className="text-5xl text-red-500 font-bold">
                   {totalDoacoes.toLocaleString("pt-BR")}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   Tampinhas + lacres
                 </p>
               </CardContent>
@@ -167,20 +206,20 @@ export function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="bg-gradient-to-br from-green-50 to-[#0e55b7]/15 border-emerald-200">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-[#0e55b7]">Lacres Arrecadados</CardTitle>
+                <CardTitle className="text-xl text-[#0e55b7]">Lacres Arrecadados</CardTitle>
                 <Award className="h-6 w-6 text-[#0e55b7]" />
               </CardHeader>
               <CardContent>
                 <div className="text-4xl font-bold text-[#0e55b7]">
                   {totalLacres.toLocaleString("pt-BR")}
                 </div>
-                <p className="text-sm text-[#0e55b7] mt-2">Total acumulado</p>
+                <p className="text-[#0e55b7] mt-2">Total acumulado</p>
               </CardContent>
             </Card>
 
             <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-green-600">Tampinhas Arrecadadas</CardTitle>
+                <CardTitle className="text-xl text-green-600">Tampinhas Arrecadadas</CardTitle>
                 <TrendingUp className="h-6 w-6 text-green-600" />
               </CardHeader>
               <CardContent>
@@ -197,7 +236,7 @@ export function Dashboard() {
             {/* Gráfico de Barras */}
             <Card>
               <CardHeader>
-                <CardTitle>Arrecadação por Escola</CardTitle>
+                <CardTitle className="text-xl">Arrecadação por Escola</CardTitle>
               </CardHeader>
               <CardContent>
                 {carregandoDoacoes ? (
@@ -208,7 +247,7 @@ export function Dashboard() {
                     <ResponsiveContainer width="100%" height={420}>
                       <BarChart
                         data={doacoesPorEscola}
-                        margin={{ top: 20, right: 20, left: 10, bottom: 90 }}
+                        margin={{ top: 30, right: 20, left: 10, bottom: 90 }}
                       >
                         <XAxis
                           dataKey="nome"
@@ -223,12 +262,20 @@ export function Dashboard() {
                       <YAxis />
                       <Tooltip />
                         <Legend verticalAlign="top" />
-                      <Bar
+                        <Bar
+                          dataKey="lacres"
+                          fill="#0f5dc9"
+                          name="Lacres"
+                        >
+                          <LabelList dataKey="lacres" position="top" fontSize={11} formatter={(v) => Number(v ?? 0).toLocaleString("pt-BR")} />
+                        </Bar>
+                        <Bar
                         dataKey="tampinhas"
                         fill="#16a34a"
                         name="Tampinhas"
-                      />
-                      <Bar dataKey="lacres" fill="#0f5dc9" name="Lacres" />
+                        >
+                          <LabelList dataKey="tampinhas" position="top" fontSize={11} formatter={(v) => Number(v ?? 0).toLocaleString("pt-BR")} />
+                        </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
@@ -242,7 +289,7 @@ export function Dashboard() {
             {/* Gráfico de Pizza */}
             <Card>
               <CardHeader>
-                <CardTitle>Distribuição de Doações</CardTitle>
+                <CardTitle className="text-xl">Distribuição de Doações</CardTitle>
               </CardHeader>
               <CardContent>
                 {carregandoDoacoes ? (
@@ -278,7 +325,96 @@ export function Dashboard() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Comparativo anual */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">Total de Arrecadação —  Comparativo Anual</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {comparativoAnual.map((item, indice) => {
+                  const variacao = variacaoAnual(indice);
+                  return (
+                    <div
+                      key={item.ano}
+                      className="rounded-xl border border-slate-200 bg-slate-50 p-5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="text-lg font-bold text-slate-800">{item.ano}</p>
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-md font-medium ${item.origem === "atual"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-600"
+                            }`}
+                        >
+                          {item.origem === "atual" ? (
+                            <>
+                              <Database className="h-3 w-3" />
+                              Atual
+                            </>
+                          ) : (
+                            <>
+                              <History className="h-3 w-3" />
+                              Histórico
+                            </>
+                          )}
+                        </span>
+                      </div>
+                      <p className="mt-5 text-3xl font-black text-slate-900">
+                        {carregandoDoacoes && item.origem === "atual"
+                          ? "…"
+                          : item.total.toLocaleString("pt-BR")}
+                      </p>
+                      <p className="mt-5 text-md text-gray-500">
+                        {item.tampinhas.toLocaleString("pt-BR")} tampinhas •{" "}
+                        {item.lacres.toLocaleString("pt-BR")} lacres
+                      </p>
+                      {variacao != null && (
+                        <p
+                          className={`mt-2 text-sm font-semibold ${variacao >= 0 ? "text-green-600" : "text-red-500"
+                            }`}
+                        >
+                          {variacao >= 0 ? "▲" : "▼"}{" "}
+                          {Math.abs(variacao).toFixed(1).replace(".", ",")}% vs{" "}
+                          {comparativoAnual[indice - 1].ano}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <ResponsiveContainer width="100%" height={400} className="p-6 mt-4 mb-6">
+                <BarChart
+                  data={comparativoAnual}
+                  margin={{ top: 30, right: 20, left: 10, bottom: 10 }}
+                >
+                  <XAxis dataKey="ano" tick={{ fontSize: 13 }} />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend verticalAlign="top" />
+                  <Bar
+                    dataKey="lacres"
+                    fill="#0f5dc9"
+                    name="Lacres"
+                  >
+                    <LabelList dataKey="lacres" position="top" fontSize={12} formatter={(v) => Number(v ?? 0).toLocaleString("pt-BR")} />
+                  </Bar>
+                  <Bar
+                    dataKey="tampinhas"
+                    fill="#16a34a"
+                    name="Tampinhas"
+                  >
+                    <LabelList dataKey="tampinhas" position="top" fontSize={12} formatter={(v) => Number(v ?? 0).toLocaleString("pt-BR")} />
+                  </Bar>
+
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         </TabsContent>
+
 
         <TabsContent value="sistema-medalhas" className="space-y-4">
           <Card>

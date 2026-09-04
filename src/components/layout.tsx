@@ -122,7 +122,7 @@ const Layout: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="p-8">
+        <div className="mx-auto w-full max-w-[1650px] p-8">
           <Outlet />
         </div>
       </main>
