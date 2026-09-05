@@ -238,12 +238,12 @@ export function Rankings() {
         }
       }} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="alunos">Alunos</TabsTrigger>
-          <TabsTrigger value="turmas">Turmas</TabsTrigger>
-          <TabsTrigger value="escolas">Escolas</TabsTrigger>
+          <TabsTrigger value="alunos" className="text-md">Alunos</TabsTrigger>
+          <TabsTrigger value="turmas" className="text-md">Turmas</TabsTrigger>
+          <TabsTrigger value="escolas" className="text-md">Escolas</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="alunos" className="space-y-4">
+        <TabsContent value="alunos" className="mt-4 space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl font-bold text-slate-800">
