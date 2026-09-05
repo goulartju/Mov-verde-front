@@ -159,7 +159,7 @@ export function Dashboard() {
                 <School className="h-5 w-5 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-5xl font-bold">{escolas.length}</div>
+                <div className="text-4xl font-bold">{escolas.length}</div>
                 <p className="text-xs text-gray-500 mt-1">Total cadastradas</p>
               </CardContent>
             </Card>
@@ -170,7 +170,7 @@ export function Dashboard() {
                 <Users className="h-5 w-5 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-5xl font-bold">{turmas.length}</div>
+                <div className="text-4xl font-bold">{turmas.length}</div>
                 <p className="text-xs text-gray-500 mt-1">Total cadastradas</p>
               </CardContent>
             </Card>
@@ -181,7 +181,7 @@ export function Dashboard() {
                 <UserPlus className="h-5 w-5 text-purple-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-5xl font-bold">{alunos.length}</div>
+                <div className="text-4xl font-bold">{alunos.length}</div>
                 <p className="text-xs text-gray-500 mt-1">Total cadastrados</p>
               </CardContent>
             </Card>
@@ -192,7 +192,7 @@ export function Dashboard() {
                 <Gift className="h-5 w-5 text-orange-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-5xl text-red-500 font-bold">
+                <div className="text-4xl text-red-500 font-bold">
                   {totalDoacoes.toLocaleString("pt-BR")}
                 </div>
                 <p className="text-sm text-gray-500 mt-1">
