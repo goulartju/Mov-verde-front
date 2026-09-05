@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useEscolas } from "@/pages/Escolas/EscolasContext";
 import { useTurmas } from "@/pages/Turmas/TurmasContext";
 import { useAlunos } from "@/pages/Alunos/AlunosContext";
+import { useCalendarios } from "../Calendario/CalendariosContext";
 import { DoacoesService } from "@/services/doacoes.service";
 import type { Doacao } from "@/types/doacoes-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,15 +40,16 @@ const HISTORICO_ARRECADACAO = [
   { ano: "2025", tampinhas: 105208, lacres: 35345 },
 ];
 
-const ANO_ATUAL = "2026";
 
 
 export function Dashboard() {
   const { escolas } = useEscolas();
   const { turmas } = useTurmas();
   const { alunos } = useAlunos();
+  const { calendarios } = useCalendarios();
   const [doacoes, setDoacoes] = useState<Doacao[]>([]);
   const [carregandoDoacoes, setCarregandoDoacoes] = useState(true);
+  const ANO_ATUAL = calendarios[0]?.ano
 
   useEffect(() => {
     DoacoesService.getAll()
@@ -151,6 +153,12 @@ export function Dashboard() {
 
         {/* Aba de Estatísticas */}
         <TabsContent value="estatisticas" className="space-y-4 gap-6">
+          <Tabs defaultValue="atuais" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="atuais" className="text-md">Dados atuais · {ANO_ATUAL}</TabsTrigger>
+              <TabsTrigger value="historico" className="text-md">Histórico</TabsTrigger>
+            </TabsList>
+            <TabsContent value="atuais" className="space-y-4 mt-4">
           {/* Cards de Estatísticas */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
@@ -213,7 +221,7 @@ export function Dashboard() {
                 <div className="text-4xl font-bold text-[#0e55b7]">
                   {totalLacres.toLocaleString("pt-BR")}
                 </div>
-                <p className="text-[#0e55b7] mt-2">Total acumulado</p>
+                    <p className="text-[#0e55b7] mt-2">Total acumulado em {ANO_ATUAL}</p>
               </CardContent>
             </Card>
 
@@ -226,7 +234,7 @@ export function Dashboard() {
                 <div className="text-4xl font-bold text-green-600">
                   {totalTampinhas.toLocaleString("pt-BR")}
                 </div>
-                <p className="text-sm text-green-600 mt-2">Total acumulado</p>
+                    <p className="text-sm text-green-600 mt-2">Total acumulado</p>
               </CardContent>
             </Card>
           </div>
@@ -236,7 +244,7 @@ export function Dashboard() {
             {/* Gráfico de Barras */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl">Arrecadação por Escola</CardTitle>
+                    <CardTitle className="text-xl">Arrecadação por Escola </CardTitle>
               </CardHeader>
               <CardContent>
                 {carregandoDoacoes ? (
@@ -326,10 +334,12 @@ export function Dashboard() {
             </Card>
           </div>
 
+            </TabsContent>
+            <TabsContent value="historico" className="space-y-4 mt-4">
           {/* Comparativo anual */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl">Total de Arrecadação —  Comparativo Anual</CardTitle>
+                  <CardTitle className="text-xl">Comparativo Anual — 2024 a {ANO_ATUAL}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -413,6 +423,8 @@ export function Dashboard() {
               </ResponsiveContainer>
             </CardContent>
           </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
 

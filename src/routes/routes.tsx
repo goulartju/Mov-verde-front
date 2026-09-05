@@ -49,6 +49,7 @@ export const Routes: React.FC = () => {
             {
               index: true,
               element: (
+                <CalendariosProvider>
                 <EscolasProvider>
                   <TurmasProvider>
                     <AlunosProvider>
@@ -58,6 +59,7 @@ export const Routes: React.FC = () => {
                     </AlunosProvider>
                   </TurmasProvider>
                 </EscolasProvider>
+                </CalendariosProvider>
               ),
             },
             {

@@ -3,9 +3,7 @@ import { useCalendarios } from "./CalendariosContext";
 import { useState, useEffect } from "react";
 import { format, parse } from "date-fns";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useEscolas } from "../Escolas/EscolasContext";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +15,6 @@ import { toast } from "sonner";
 const ModalCalendario = () => {
   const { addCalendario, updateCalendario, editingId, setEditingId, openModal, setOpenModal, setCalendarioSelected,
     calendarioSelected } = useCalendarios();
-  const { escolas } = useEscolas();
 
   const [formData, setFormData] = useState({
     ano: new Date().getFullYear(),
