@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { GoogleLogin } from '@react-oauth/google';
 import { Leaf, Mail, Lock, Recycle } from 'lucide-react';
@@ -6,8 +6,23 @@ import { AuthService } from '@/services/auth.service';
 import config from '@/config/constants';
 import axios from 'axios';
 
+const useMediaQuery = (query: string) => {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const onChange = (e: MediaQueryListEvent) => setMatches(e.matches);
+    mql.addEventListener('change', onChange);
+    setMatches(mql.matches);
+    return () => mql.removeEventListener('change', onChange);
+  }, [query]);
+  return matches;
+};
+
 const Login = () => {
   const navigate = useNavigate();
+  // O form é montado nos dois layouts (mobile + desktop, um escondido via CSS);
+  // monta o botão Google só no layout visível para o GSI inicializar 1x.
+  const isDesktop = useMediaQuery('(min-width: 768px)');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
@@ -86,7 +101,7 @@ const Login = () => {
     </>
   );
 
-  const formContent = (
+  const renderFormContent = (withGoogle: boolean) => (
     <>
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -142,7 +157,7 @@ const Login = () => {
           <span>ou</span>
           <span className="h-px flex-1 bg-gray-200" />
         </div>
-        {config.API.GOOGLE_CLIENT_ID ? (
+        {config.API.GOOGLE_CLIENT_ID && withGoogle ? (
           <div
             className={`flex justify-center ${googleLoading ? 'pointer-events-none opacity-60' : ''}`}
             aria-busy={googleLoading}
@@ -154,7 +169,7 @@ const Login = () => {
               theme="outline"
               size="large"
               text="signin_with"
-              width="100%"
+              width="320"
               auto_select={false}
               cancel_on_tap_outside
             />
@@ -177,7 +192,7 @@ const Login = () => {
         <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
           <div className="w-full max-w-sm mx-auto">
             {iconContent}
-            {formContent}
+            {renderFormContent(!isDesktop)}
           </div>
         </div>
       </div>
@@ -216,7 +231,7 @@ const Login = () => {
               </p>
             </div>
             <div className="w-full max-w-sm mx-auto">
-              {formContent}
+              {renderFormContent(isDesktop)}
             </div>
           </div>
         </div>
