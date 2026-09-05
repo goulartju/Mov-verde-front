@@ -50,8 +50,12 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Login endpoint returned 401 → credenciais inválidas, deixa o catch do chamador tratar
-    if (originalRequest?.url?.includes('/Auth/login')) {
+    // Endpoints de autenticação retornaram 401 → deixa o catch do chamador
+    // tratar (e exibir a mensagem do backend) em vez de tentar refresh.
+    if (
+      originalRequest?.url?.includes('/Auth/login') ||
+      originalRequest?.url?.includes('/Auth/google-login')
+    ) {
       return Promise.reject(error);
     }
 

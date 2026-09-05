@@ -4,7 +4,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { Leaf, Mail, Lock, Recycle } from 'lucide-react';
 import { AuthService } from '@/services/auth.service';
 import config from '@/config/constants';
-import axios from 'axios';
+import { getApiErrorMessage } from '@/lib/api-error';
 
 const useMediaQuery = (query: string) => {
   const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
@@ -47,12 +47,7 @@ const Login = () => {
       await AuthService.login({ email, senha });
       navigate('/');
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const message = err.response?.data?.message ?? err.response?.data ?? err.message;
-        setError(typeof message === 'string' ? message : 'Email ou senha inválidos');
-      } else {
-        setError('Email ou senha inválidos');
-      }
+      setError(getApiErrorMessage(err, 'Email ou senha inválidos'));
     } finally {
       setLoading(false);
     }
@@ -73,12 +68,7 @@ const Login = () => {
       });
       navigate('/');
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const message = err.response?.data?.message ?? err.response?.data ?? err.message;
-        setError(typeof message === 'string' ? message : 'Não foi possível entrar com o Google');
-      } else {
-        setError('Não foi possível entrar com o Google');
-      }
+      setError(getApiErrorMessage(err, 'Não foi possível entrar com o Google'));
     } finally {
       setGoogleLoading(false);
     }
