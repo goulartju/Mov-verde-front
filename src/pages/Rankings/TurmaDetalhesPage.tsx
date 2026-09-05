@@ -154,7 +154,11 @@ export function TurmaDetalhesPage() {
 
                     <div>
                       <p className="text-lg font-semibold">{aluno.nome}</p>
-                      <span className="text-lg font-semibold text-blue-500">{medalhaLabel}</span>
+                      {
+                        mostrarMedalha && (
+                          <span className="text-lg font-semibold text-blue-500">{medalhaLabel}</span>
+                        )
+                      }
                     </div>
                   </div>
 
