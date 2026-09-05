@@ -24,8 +24,7 @@ const ModalCalendario = () => {
     dataInicio: "",
     dataFim: "",
     ativo: true,
-    id: "",
-    escolaId: "",
+    id: ""
   });
 
   // Helper para parsear datas em formato yyyy-MM-dd ou ISO string
@@ -70,7 +69,6 @@ const ModalCalendario = () => {
     // Validação de campos obrigatórios
     const errors: string[] = [];
 
-    if (!formData.escolaId) errors.push("Escola");
     if (!formData.dataInicio || formData.dataInicio.trim() === "") errors.push("Data de início");
     if (!formData.dataFim || formData.dataFim.trim() === "") errors.push("Data de término");
 
@@ -96,8 +94,7 @@ const ModalCalendario = () => {
       dataInicio: "",
       dataFim: "",
       ativo: true,
-      id: "",
-      escolaId: "",
+      id: ""
     });
     setEditingId(null);
     setCalendarioSelected(null);
@@ -112,8 +109,7 @@ const ModalCalendario = () => {
           dataInicio: calendarioSelected.dataInicio || "",
           dataFim: calendarioSelected.dataFim || "",
           ativo: calendarioSelected.ativo ?? true,
-          id: calendarioSelected.id || "",
-          escolaId: calendarioSelected.escolaId || "",
+          id: calendarioSelected.id || ""
         });
       } else {
         setFormData({
@@ -121,8 +117,7 @@ const ModalCalendario = () => {
           dataInicio: "",
           dataFim: "",
           ativo: true,
-          id: "",
-          escolaId: "",
+          id: ""
         });
       }
     }
@@ -158,34 +153,6 @@ const ModalCalendario = () => {
                 onChange={(e) => setFormData({ ...formData, ano: parseInt(e.target.value) || new Date().getFullYear() })}
                 required
               />
-            </div>
-            <div className={"flex flex-col w-full min-w-[300px]"}>
-              <Label htmlFor="escolaId">
-                Escola <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={formData.escolaId}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    escolaId: value,
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a escola" />
-                </SelectTrigger>
-                <SelectContent>
-                  {escolas.map((escola) => (
-                    <SelectItem
-                      key={escola.id}
-                      value={escola.id}
-                    >
-                      {escola.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div className={"flex flex-row w-full gap-4"}>
               <div>

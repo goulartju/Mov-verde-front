@@ -5,5 +5,4 @@ export interface Calendario {
   dataInicio: string;
   dataFim: string;
   ativo: boolean;
-  escolaId: string;
 }

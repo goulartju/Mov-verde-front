@@ -10,8 +10,6 @@ interface CalendariosContextType {
   calendarioSelected: Calendario | null;
   editingId: string | null;
   openModal: boolean;
-  escolaSelected: string;
-  setEscolaSelected: (escolaId: string) => void;
   setEditingId: (id: string | null) => void;
   setOpenModal: (open: boolean) => void;
   handleEdit: (calendario: Calendario) => void;
@@ -34,7 +32,6 @@ export const CalendariosProvider = ({ children }: { children: ReactNode }) => {
   const [openModal, setOpenModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [calendarioSelected, setCalendarioSelected] = useState<Calendario | null>(null);
-  const [escolaSelected, setEscolaSelected] = useState<string>("");
 
   const fetchCalendarios = async () => {
     try {
@@ -92,7 +89,7 @@ export const CalendariosProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <CalendariosContext.Provider value={{
-      calendarios, escolaSelected, setEscolaSelected, handleDelete, handleEdit, addCalendario, updateCalendario,
+      calendarios, handleDelete, handleEdit, addCalendario, updateCalendario,
       openModal, setOpenModal, editingId, setEditingId, calendarioSelected, setCalendarioSelected
     }}>
       {children}
